@@ -34,6 +34,7 @@ interface Bonificacao {
   marca: string;
   tipo: string;
   valor: number | null;
+  nota_fiscal: string | null;
   campanha: string | null;
   status: string | null;
   created_at: string | null;
