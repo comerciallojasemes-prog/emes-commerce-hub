@@ -77,6 +77,7 @@ export default function Bonificacoes() {
     setMarca("");
     setTipo("");
     setValor("");
+    setNotaFiscal("");
     setCampanha("");
     setStatus("PENDENTE");
     setEditing(null);
