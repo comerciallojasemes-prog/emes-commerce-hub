@@ -251,6 +251,7 @@ export default function Bonificacoes() {
                 <TableCell className="font-medium">{b.marca}</TableCell>
                 <TableCell>{b.tipo}</TableCell>
                 <TableCell>{b.valor != null ? `R$ ${b.valor.toFixed(2)}` : "—"}</TableCell>
+                <TableCell>{b.nota_fiscal || "—"}</TableCell>
                 <TableCell>{b.campanha || "—"}</TableCell>
                 <TableCell>{statusBadge(b.status)}</TableCell>
                 {isAdmin && (
