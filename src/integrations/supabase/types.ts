@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      agenda: {
+        Row: {
+          created_at: string | null
+          data: string
+          id: string
+          observacoes: string | null
+          responsavel: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          id?: string
+          observacoes?: string | null
+          responsavel: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          id?: string
+          observacoes?: string | null
+          responsavel?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
+      pendencias: {
+        Row: {
+          contato: string | null
+          created_at: string | null
+          data: string
+          id: string
+          marca: string
+          observacao: string
+          responsavel: string
+          status: string | null
+        }
+        Insert: {
+          contato?: string | null
+          created_at?: string | null
+          data: string
+          id?: string
+          marca: string
+          observacao: string
+          responsavel: string
+          status?: string | null
+        }
+        Update: {
+          contato?: string | null
+          created_at?: string | null
+          data?: string
+          id?: string
+          marca?: string
+          observacao?: string
+          responsavel?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           created_at: string | null
@@ -50,6 +110,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_admin_or_comercial: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
