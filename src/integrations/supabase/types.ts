@@ -41,6 +41,63 @@ export type Database = {
         }
         Relationships: []
       }
+      alertas: {
+        Row: {
+          created_at: string | null
+          data: string
+          id: string
+          mensagem: string
+          responsavel: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data: string
+          id?: string
+          mensagem: string
+          responsavel: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: string
+          id?: string
+          mensagem?: string
+          responsavel?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      bonificacoes: {
+        Row: {
+          campanha: string | null
+          created_at: string | null
+          id: string
+          marca: string
+          status: string | null
+          tipo: string
+          valor: number | null
+        }
+        Insert: {
+          campanha?: string | null
+          created_at?: string | null
+          id?: string
+          marca: string
+          status?: string | null
+          tipo: string
+          valor?: number | null
+        }
+        Update: {
+          campanha?: string | null
+          created_at?: string | null
+          id?: string
+          marca?: string
+          status?: string | null
+          tipo?: string
+          valor?: number | null
+        }
+        Relationships: []
+      }
       pendencias: {
         Row: {
           contato: string | null
