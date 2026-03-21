@@ -59,7 +59,18 @@ function ProtectedRoutes() {
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto">
+            <span className="text-sm font-extrabold text-primary-foreground">PC</span>
+          </div>
+          <p className="text-muted-foreground text-sm">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
