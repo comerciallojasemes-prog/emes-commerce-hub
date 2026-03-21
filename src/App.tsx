@@ -32,7 +32,20 @@ function ProtectedRoutes() {
     );
   }
 
-  if (!user || !perfil) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  
+  if (!perfil) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mx-auto">
+            <span className="text-sm font-extrabold text-primary-foreground">PC</span>
+          </div>
+          <p className="text-muted-foreground text-sm">Carregando perfil...</p>
+        </div>
+      </div>
+    );
+  }
 
   const defaultRoute = perfil.perfil === "Lojas" ? "/agenda" : "/agenda";
 

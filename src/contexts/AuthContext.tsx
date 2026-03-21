@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const fetchPerfil = async (userId: string) => {
     const { data, error } = await supabase
@@ -42,26 +43,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchPerfil(session.user.id);
-        } else {
-          setUser(null);
-          setPerfil(null);
-        }
-        setLoading(false);
-      }
-    );
-
+    // First get the initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
         await fetchPerfil(session.user.id);
       }
       setLoading(false);
+      setInitialLoad(false);
     });
+
+    // Then listen for auth changes (but skip during initial load)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+          // Use setTimeout to avoid blocking render with stale state
+          setTimeout(async () => {
+            await fetchPerfil(session.user.id);
+            setLoading(false);
+          }, 0);
+        } else {
+          setUser(null);
+          setPerfil(null);
+          setLoading(false);
+        }
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
