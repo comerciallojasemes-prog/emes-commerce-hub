@@ -56,6 +56,7 @@ export default function Bonificacoes() {
   const [marca, setMarca] = useState("");
   const [tipo, setTipo] = useState("");
   const [valor, setValor] = useState("");
+  const [notaFiscal, setNotaFiscal] = useState("");
   const [campanha, setCampanha] = useState("");
   const [status, setStatus] = useState("PENDENTE");
 
