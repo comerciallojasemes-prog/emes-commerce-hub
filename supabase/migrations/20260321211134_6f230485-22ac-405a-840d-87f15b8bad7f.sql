@@ -1,0 +1,1 @@
+ALTER TABLE public.bonificacoes ADD COLUMN nota_fiscal text;
