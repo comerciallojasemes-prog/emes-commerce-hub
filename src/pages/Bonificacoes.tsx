@@ -104,6 +104,7 @@ export default function Bonificacoes() {
       marca,
       tipo,
       valor: valor ? parseFloat(valor) : null,
+      nota_fiscal: notaFiscal || null,
       campanha: campanha || null,
       status,
     };
