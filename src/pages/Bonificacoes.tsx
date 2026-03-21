@@ -34,6 +34,7 @@ interface Bonificacao {
   marca: string;
   tipo: string;
   valor: number | null;
+  nota_fiscal: string | null;
   campanha: string | null;
   status: string | null;
   created_at: string | null;
@@ -55,6 +56,7 @@ export default function Bonificacoes() {
   const [marca, setMarca] = useState("");
   const [tipo, setTipo] = useState("");
   const [valor, setValor] = useState("");
+  const [notaFiscal, setNotaFiscal] = useState("");
   const [campanha, setCampanha] = useState("");
   const [status, setStatus] = useState("PENDENTE");
 
@@ -75,6 +77,7 @@ export default function Bonificacoes() {
     setMarca("");
     setTipo("");
     setValor("");
+    setNotaFiscal("");
     setCampanha("");
     setStatus("PENDENTE");
     setEditing(null);
@@ -85,6 +88,7 @@ export default function Bonificacoes() {
     setMarca(b.marca);
     setTipo(b.tipo);
     setValor(b.valor?.toString() || "");
+    setNotaFiscal(b.nota_fiscal || "");
     setCampanha(b.campanha || "");
     setStatus(b.status || "PENDENTE");
     setDialogOpen(true);
@@ -100,6 +104,7 @@ export default function Bonificacoes() {
       marca,
       tipo,
       valor: valor ? parseFloat(valor) : null,
+      nota_fiscal: notaFiscal || null,
       campanha: campanha || null,
       status,
     };
@@ -178,6 +183,10 @@ export default function Bonificacoes() {
                   <Input type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
                 </div>
                 <div>
+                  <label className="text-sm font-medium">Nota Fiscal</label>
+                  <Input value={notaFiscal} onChange={(e) => setNotaFiscal(e.target.value)} placeholder="Número da nota fiscal" />
+                </div>
+                <div>
                   <label className="text-sm font-medium">Campanha</label>
                   <Input value={campanha} onChange={(e) => setCampanha(e.target.value)} placeholder="Nome da campanha" />
                 </div>
@@ -230,6 +239,7 @@ export default function Bonificacoes() {
               <TableHead>Marca</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Valor (R$)</TableHead>
+              <TableHead>Nota Fiscal</TableHead>
               <TableHead>Campanha</TableHead>
               <TableHead>Status</TableHead>
               {isAdmin && <TableHead className="text-right">Ações</TableHead>}
@@ -241,6 +251,7 @@ export default function Bonificacoes() {
                 <TableCell className="font-medium">{b.marca}</TableCell>
                 <TableCell>{b.tipo}</TableCell>
                 <TableCell>{b.valor != null ? `R$ ${b.valor.toFixed(2)}` : "—"}</TableCell>
+                <TableCell>{b.nota_fiscal || "—"}</TableCell>
                 <TableCell>{b.campanha || "—"}</TableCell>
                 <TableCell>{statusBadge(b.status)}</TableCell>
                 {isAdmin && (
@@ -259,7 +270,7 @@ export default function Bonificacoes() {
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={isAdmin ? 6 : 5} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-muted-foreground py-8">
                   Nenhuma bonificação encontrada.
                 </TableCell>
               </TableRow>

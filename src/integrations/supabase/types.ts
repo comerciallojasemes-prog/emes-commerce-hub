@@ -74,6 +74,7 @@ export type Database = {
           created_at: string | null
           id: string
           marca: string
+          nota_fiscal: string | null
           status: string | null
           tipo: string
           valor: number | null
@@ -83,6 +84,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           marca: string
+          nota_fiscal?: string | null
           status?: string | null
           tipo: string
           valor?: number | null
@@ -92,6 +94,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           marca?: string
+          nota_fiscal?: string | null
           status?: string | null
           tipo?: string
           valor?: number | null
