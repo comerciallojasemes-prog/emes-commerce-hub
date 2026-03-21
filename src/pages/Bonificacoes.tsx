@@ -183,6 +183,10 @@ export default function Bonificacoes() {
                   <Input type="number" step="0.01" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
                 </div>
                 <div>
+                  <label className="text-sm font-medium">Nota Fiscal</label>
+                  <Input value={notaFiscal} onChange={(e) => setNotaFiscal(e.target.value)} placeholder="Número da nota fiscal" />
+                </div>
+                <div>
                   <label className="text-sm font-medium">Campanha</label>
                   <Input value={campanha} onChange={(e) => setCampanha(e.target.value)} placeholder="Nome da campanha" />
                 </div>
