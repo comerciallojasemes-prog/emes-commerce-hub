@@ -239,6 +239,7 @@ export default function Bonificacoes() {
               <TableHead>Marca</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Valor (R$)</TableHead>
+              <TableHead>Nota Fiscal</TableHead>
               <TableHead>Campanha</TableHead>
               <TableHead>Status</TableHead>
               {isAdmin && <TableHead className="text-right">Ações</TableHead>}
