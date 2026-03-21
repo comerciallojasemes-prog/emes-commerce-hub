@@ -14,13 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      perfis: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          loja: string | null
+          nome: string
+          perfil: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          loja?: string | null
+          nome: string
+          perfil: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          loja?: string | null
+          nome?: string
+          perfil?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
