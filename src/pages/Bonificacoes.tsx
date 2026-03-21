@@ -88,6 +88,7 @@ export default function Bonificacoes() {
     setMarca(b.marca);
     setTipo(b.tipo);
     setValor(b.valor?.toString() || "");
+    setNotaFiscal(b.nota_fiscal || "");
     setCampanha(b.campanha || "");
     setStatus(b.status || "PENDENTE");
     setDialogOpen(true);
