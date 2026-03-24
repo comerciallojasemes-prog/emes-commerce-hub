@@ -63,6 +63,9 @@ function ProtectedRoutes() {
             <Route path="solicitacoes" element={<Solicitacoes />} />
           </>
         )}
+        {perfil.perfil === "Admin" && (
+          <Route path="usuarios" element={<Usuarios />} />
+        )}
         <Route path="suprimentos" element={<Suprimentos />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
