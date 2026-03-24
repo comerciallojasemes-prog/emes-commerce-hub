@@ -1,10 +1,11 @@
-import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList } from "lucide-react";
+import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -30,6 +31,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { perfil } = useAuth();
+
+  const isAdmin = perfil?.perfil === "Admin";
 
   const modules = perfil?.perfil === "Lojas"
     ? allModules.filter((m) => lojasModules.includes(m.url))
@@ -91,6 +94,30 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      {isAdmin && (
+        <SidebarFooter className="border-t border-sidebar-border">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname === "/usuarios"}
+                tooltip="Gestão de Usuários"
+              >
+                <NavLink
+                  to="/usuarios"
+                  end
+                  className="transition-colors"
+                  activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                >
+                  <Settings className="h-4 w-4" />
+                  {!collapsed && <span>Gestão de Usuários</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
