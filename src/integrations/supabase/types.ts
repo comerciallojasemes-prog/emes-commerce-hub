@@ -164,6 +164,99 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitacoes: {
+        Row: {
+          created_at: string | null
+          id: string
+          item: string
+          loja: string
+          observacao: string | null
+          quantidade: number
+          status: string | null
+          tamanho: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item: string
+          loja: string
+          observacao?: string | null
+          quantidade: number
+          status?: string | null
+          tamanho?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item?: string
+          loja?: string
+          observacao?: string | null
+          quantidade?: number
+          status?: string | null
+          tamanho?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      suprimentos_deposito: {
+        Row: {
+          created_at: string | null
+          estoque_minimo: number
+          id: string
+          observacao: string | null
+          produto: string
+          quantidade: number
+          tamanho: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          estoque_minimo?: number
+          id?: string
+          observacao?: string | null
+          produto: string
+          quantidade?: number
+          tamanho?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          estoque_minimo?: number
+          id?: string
+          observacao?: string | null
+          produto?: string
+          quantidade?: number
+          tamanho?: string | null
+        }
+        Relationships: []
+      }
+      suprimentos_lojas: {
+        Row: {
+          id: string
+          loja: string
+          produto: string
+          quantidade: number
+          tamanho: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          loja: string
+          produto: string
+          quantidade?: number
+          tamanho?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          loja?: string
+          produto?: string
+          quantidade?: number
+          tamanho?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
