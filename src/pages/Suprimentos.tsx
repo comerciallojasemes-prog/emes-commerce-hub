@@ -1,8 +1,13 @@
+import { useAuth } from "@/contexts/AuthContext";
+import SuprimentosDeposito from "@/components/suprimentos/SuprimentosDeposito";
+import SuprimentosLoja from "@/components/suprimentos/SuprimentosLoja";
+
 export default function Suprimentos() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground">Suprimentos</h1>
-      <p className="text-muted-foreground mt-1">Conteúdo será adicionado nas próximas etapas.</p>
-    </div>
-  );
+  const { perfil } = useAuth();
+
+  if (perfil?.perfil === "Lojas") {
+    return <SuprimentosLoja />;
+  }
+
+  return <SuprimentosDeposito />;
 }
