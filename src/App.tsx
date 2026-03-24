@@ -12,6 +12,7 @@ import Alertas from "@/pages/Alertas";
 import Bonificacoes from "@/pages/Bonificacoes";
 import Suprimentos from "@/pages/Suprimentos";
 import Solicitacoes from "@/pages/Solicitacoes";
+import Usuarios from "@/pages/Usuarios";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
