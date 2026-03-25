@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Download, Package, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -18,6 +20,7 @@ interface Solicitacao {
   item: string;
   tamanho: string | null;
   quantidade: number;
+  quantidade_enviada: number | null;
   observacao: string | null;
   status: string;
   created_at: string;
@@ -28,7 +31,7 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDENTE": return <Badge className="bg-[hsl(48,100%,55%)] text-[hsl(0,0%,4%)] border-0">🟡 PENDENTE</Badge>;
     case "SEPARADO": return <Badge className="bg-[hsl(217,91%,60%)] text-white border-0">🔵 SEPARADO</Badge>;
-    case "ENTREGUE": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">🟢 ENTREGUE</Badge>;
+    case "ENVIADO": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">🟢 ENVIADO</Badge>;
     case "CONFIRMADO": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">✅ CONFIRMADO</Badge>;
     default: return <Badge variant="outline">{status}</Badge>;
   }
@@ -44,9 +47,14 @@ export default function Solicitacoes() {
   const [verPorLoja, setVerPorLoja] = useState(false);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
 
+  // Enviar modal state
+  const [enviarModalOpen, setEnviarModalOpen] = useState(false);
+  const [enviarIds, setEnviarIds] = useState<string[]>([]);
+  const [enviarQuantidades, setEnviarQuantidades] = useState<Record<string, number>>({});
+
   const fetchSolicitacoes = async () => {
     const { data } = await supabase.from("solicitacoes").select("*").order("created_at", { ascending: false });
-    if (data) setSolicitacoes(data);
+    if (data) setSolicitacoes(data as any);
     setLoading(false);
   };
 
@@ -80,38 +88,66 @@ export default function Solicitacoes() {
     return map;
   }, [filtered]);
 
-  const updateStatus = async (ids: string[], newStatus: string) => {
-    for (const id of ids) {
+  const openEnviarModal = (ids: string[]) => {
+    const qtds: Record<string, number> = {};
+    ids.forEach(id => {
+      const sol = solicitacoes.find(s => s.id === id);
+      if (sol) qtds[id] = sol.quantidade;
+    });
+    setEnviarIds(ids);
+    setEnviarQuantidades(qtds);
+    setEnviarModalOpen(true);
+  };
+
+  const confirmEnviar = async () => {
+    for (const id of enviarIds) {
       const sol = solicitacoes.find(s => s.id === id);
       if (!sol) continue;
+      const qtdEnviada = enviarQuantidades[id] ?? sol.quantidade;
 
-      const { error } = await supabase.from("solicitacoes").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await supabase.from("solicitacoes").update({
+        status: "ENVIADO",
+        quantidade_enviada: qtdEnviada,
+        updated_at: new Date().toISOString(),
+      }).eq("id", id);
       if (error) { toast.error(`Erro ao atualizar: ${error.message}`); return; }
 
-      // If marking as ENTREGUE, subtract from deposito
-      if (newStatus === "ENTREGUE" && sol) {
-        const { data: depositoItems } = await supabase
+      // Subtract from deposito
+      const { data: depositoItems } = await supabase
+        .from("suprimentos_deposito")
+        .select("*")
+        .eq("produto", sol.item)
+        .eq("tamanho", sol.tamanho || "");
+
+      let match = depositoItems?.[0];
+      if (!match && !sol.tamanho) {
+        const { data: nullMatch } = await supabase
           .from("suprimentos_deposito")
           .select("*")
           .eq("produto", sol.item)
-          .eq("tamanho", sol.tamanho || "");
-
-        // Try matching with null tamanho too
-        let match = depositoItems?.[0];
-        if (!match && !sol.tamanho) {
-          const { data: nullMatch } = await supabase
-            .from("suprimentos_deposito")
-            .select("*")
-            .eq("produto", sol.item)
-            .is("tamanho", null);
-          match = nullMatch?.[0];
-        }
-
-        if (match) {
-          const newQtd = Math.max(0, (match as any).quantidade - sol.quantidade);
-          await supabase.from("suprimentos_deposito").update({ quantidade: newQtd }).eq("id", (match as any).id);
-        }
+          .is("tamanho", null);
+        match = nullMatch?.[0];
       }
+
+      if (match) {
+        const newQtd = Math.max(0, (match as any).quantidade - qtdEnviada);
+        await supabase.from("suprimentos_deposito").update({ quantidade: newQtd }).eq("id", (match as any).id);
+      }
+    }
+    toast.success("Status atualizado para ENVIADO");
+    setSelecionados(new Set());
+    setEnviarModalOpen(false);
+    fetchSolicitacoes();
+  };
+
+  const updateStatus = async (ids: string[], newStatus: string) => {
+    if (newStatus === "ENVIADO") {
+      openEnviarModal(ids);
+      return;
+    }
+    for (const id of ids) {
+      const { error } = await supabase.from("solicitacoes").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", id);
+      if (error) { toast.error(`Erro ao atualizar: ${error.message}`); return; }
     }
     toast.success("Status atualizado");
     setSelecionados(new Set());
@@ -125,7 +161,6 @@ export default function Solicitacoes() {
   };
 
   const exportPDF = () => {
-    // Generate a text-based separation list grouped by store
     const pendentes = solicitacoes.filter(s => s.status === "PENDENTE" || s.status === "SEPARADO");
     const groupedPend = new Map<string, Solicitacao[]>();
     pendentes.forEach(s => {
@@ -161,7 +196,7 @@ export default function Solicitacoes() {
         <TableRow>
           <TableHead className="w-10">
             <Checkbox
-              checked={items.every(i => selecionados.has(i.id))}
+              checked={items.length > 0 && items.every(i => selecionados.has(i.id))}
               onCheckedChange={(checked) => {
                 const next = new Set(selecionados);
                 items.forEach(i => checked ? next.add(i.id) : next.delete(i.id));
@@ -173,6 +208,7 @@ export default function Solicitacoes() {
           <TableHead>Item</TableHead>
           <TableHead>Tamanho</TableHead>
           <TableHead>Qtde</TableHead>
+          <TableHead>Qtde Enviada</TableHead>
           <TableHead>Data</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Ações</TableHead>
@@ -180,7 +216,7 @@ export default function Solicitacoes() {
       </TableHeader>
       <TableBody>
         {items.length === 0 ? (
-          <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
+          <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
         ) : items.map(sol => (
           <TableRow key={sol.id}>
             <TableCell><Checkbox checked={selecionados.has(sol.id)} onCheckedChange={() => toggleSelect(sol.id)} /></TableCell>
@@ -188,15 +224,16 @@ export default function Solicitacoes() {
             <TableCell>{sol.item}</TableCell>
             <TableCell>{sol.tamanho || "—"}</TableCell>
             <TableCell>{sol.quantidade}</TableCell>
+            <TableCell>{sol.quantidade_enviada ?? "—"}</TableCell>
             <TableCell className="text-sm">{format(new Date(sol.created_at), "dd/MM/yyyy")}</TableCell>
             <TableCell><StatusBadge status={sol.status || "PENDENTE"} /></TableCell>
             <TableCell>
               <div className="flex items-center gap-1 flex-wrap">
-                {(sol.status === "PENDENTE") && (
+                {sol.status === "PENDENTE" && (
                   <Button size="sm" variant="outline" onClick={() => updateStatus([sol.id], "SEPARADO")}>Separar</Button>
                 )}
-                {(sol.status === "SEPARADO") && (
-                  <Button size="sm" variant="outline" onClick={() => updateStatus([sol.id], "ENTREGUE")}>Entregar</Button>
+                {sol.status === "SEPARADO" && (
+                  <Button size="sm" variant="outline" onClick={() => updateStatus([sol.id], "ENVIADO")}>Enviar</Button>
                 )}
               </div>
             </TableCell>
@@ -223,7 +260,7 @@ export default function Solicitacoes() {
           {selecionados.size > 0 && (
             <>
               <Button size="sm" onClick={() => updateStatus([...selecionados], "SEPARADO")}>Marcar Selecionados: Separado</Button>
-              <Button size="sm" onClick={() => updateStatus([...selecionados], "ENTREGUE")}>Marcar Selecionados: Entregue</Button>
+              <Button size="sm" onClick={() => updateStatus([...selecionados], "ENVIADO")}>Marcar Selecionados: Enviado</Button>
             </>
           )}
         </div>
@@ -247,7 +284,7 @@ export default function Solicitacoes() {
               <SelectItem value="todos">Todos os Status</SelectItem>
               <SelectItem value="PENDENTE">Pendente</SelectItem>
               <SelectItem value="SEPARADO">Separado</SelectItem>
-              <SelectItem value="ENTREGUE">Entregue</SelectItem>
+              <SelectItem value="ENVIADO">Enviado</SelectItem>
               <SelectItem value="CONFIRMADO">Confirmado</SelectItem>
             </SelectContent>
           </Select>
@@ -272,6 +309,45 @@ export default function Solicitacoes() {
       ) : (
         <div className="rounded-lg border bg-card">{renderTable(filtered)}</div>
       )}
+
+      {/* Modal de confirmação de envio */}
+      <Dialog open={enviarModalOpen} onOpenChange={setEnviarModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Envio</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">Confirme a quantidade a enviar para cada item:</p>
+            {enviarIds.map(id => {
+              const sol = solicitacoes.find(s => s.id === id);
+              if (!sol) return null;
+              return (
+                <div key={id} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/50">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{sol.item}{sol.tamanho ? ` (${sol.tamanho})` : ""}</p>
+                    <p className="text-xs text-muted-foreground">{sol.loja} — Solicitado: {sol.quantidade}</p>
+                  </div>
+                  <div className="w-28">
+                    <Label className="text-xs">Qtde a enviar</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={sol.quantidade}
+                      value={enviarQuantidades[id] ?? sol.quantidade}
+                      onChange={e => setEnviarQuantidades(prev => ({ ...prev, [id]: parseInt(e.target.value) || 0 }))}
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEnviarModalOpen(false)}>Cancelar</Button>
+            <Button onClick={confirmEnviar}>Confirmar Envio</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

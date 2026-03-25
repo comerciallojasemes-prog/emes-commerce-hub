@@ -48,7 +48,7 @@ function SolicitacaoBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDENTE": return <Badge className="bg-[hsl(48,100%,55%)] text-[hsl(0,0%,4%)] border-0">🟡 PENDENTE</Badge>;
     case "SEPARADO": return <Badge className="bg-[hsl(217,91%,60%)] text-white border-0">🔵 SEPARADO</Badge>;
-    case "ENTREGUE": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">🟢 ENTREGUE</Badge>;
+    case "ENVIADO": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">🟢 ENVIADO</Badge>;
     case "CONFIRMADO": return <Badge className="bg-[hsl(142,71%,45%)] text-white border-0">✅ CONFIRMADO</Badge>;
     default: return <Badge variant="outline">{status}</Badge>;
   }
@@ -269,7 +269,7 @@ export default function SuprimentosLoja() {
                     <TableCell className="text-sm">{format(new Date(sol.created_at), "dd/MM/yyyy")}</TableCell>
                     <TableCell><SolicitacaoBadge status={sol.status || "PENDENTE"} /></TableCell>
                     <TableCell>
-                      {sol.status === "ENTREGUE" && (
+                      {sol.status === "ENVIADO" && (
                         <Button size="sm" variant="outline" onClick={() => handleConfirmarRecebimento(sol)}>
                           <CheckCircle size={14} /> Confirmar Recebimento
                         </Button>

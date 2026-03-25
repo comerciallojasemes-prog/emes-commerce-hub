@@ -237,6 +237,7 @@ export type Database = {
           loja: string
           observacao: string | null
           quantidade: number
+          quantidade_enviada: number | null
           status: string | null
           tamanho: string | null
           updated_at: string | null
@@ -248,6 +249,7 @@ export type Database = {
           loja: string
           observacao?: string | null
           quantidade: number
+          quantidade_enviada?: number | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
@@ -259,6 +261,7 @@ export type Database = {
           loja?: string
           observacao?: string | null
           quantidade?: number
+          quantidade_enviada?: number | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
