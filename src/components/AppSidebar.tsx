@@ -25,7 +25,7 @@ const allModules = [
   { title: "Promoções", url: "/promocoes", icon: Tag },
 ];
 
-const lojasModules = ["/suprimentos", "/agenda"];
+const lojasModules = ["/suprimentos", "/agenda", "/promocoes"];
 
 export function AppSidebar() {
   const { state } = useSidebar();
