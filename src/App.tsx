@@ -62,6 +62,7 @@ function ProtectedRoutes() {
             <Route path="alertas" element={<Alertas />} />
             <Route path="bonificacoes" element={<Bonificacoes />} />
             <Route path="solicitacoes" element={<Solicitacoes />} />
+            <Route path="promocoes" element={<Promocoes />} />
           </>
         )}
         {perfil.perfil === "Admin" && (

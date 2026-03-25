@@ -22,6 +22,7 @@ const allModules = [
   { title: "Bonificações", url: "/bonificacoes", icon: Gift },
   { title: "Suprimentos", url: "/suprimentos", icon: Package },
   { title: "Solicitações", url: "/solicitacoes", icon: ClipboardList },
+  { title: "Promoções", url: "/promocoes", icon: Tag },
 ];
 
 const lojasModules = ["/suprimentos", "/agenda"];
