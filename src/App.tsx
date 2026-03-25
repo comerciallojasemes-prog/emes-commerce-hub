@@ -62,13 +62,13 @@ function ProtectedRoutes() {
             <Route path="alertas" element={<Alertas />} />
             <Route path="bonificacoes" element={<Bonificacoes />} />
             <Route path="solicitacoes" element={<Solicitacoes />} />
-            <Route path="promocoes" element={<Promocoes />} />
           </>
         )}
         {perfil.perfil === "Admin" && (
           <Route path="usuarios" element={<Usuarios />} />
         )}
         <Route path="suprimentos" element={<Suprimentos />} />
+        <Route path="promocoes" element={<Promocoes />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
     </Routes>
