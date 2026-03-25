@@ -269,7 +269,7 @@ export default function SuprimentosLoja() {
                     <TableCell className="text-sm">{format(new Date(sol.created_at), "dd/MM/yyyy")}</TableCell>
                     <TableCell><SolicitacaoBadge status={sol.status || "PENDENTE"} /></TableCell>
                     <TableCell>
-                      {sol.status === "ENTREGUE" && (
+                      {sol.status === "ENVIADO" && (
                         <Button size="sm" variant="outline" onClick={() => handleConfirmarRecebimento(sol)}>
                           <CheckCircle size={14} /> Confirmar Recebimento
                         </Button>

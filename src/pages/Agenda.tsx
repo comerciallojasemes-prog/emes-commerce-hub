@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -41,6 +41,10 @@ export default function Agenda() {
   const [editingItem, setEditingItem] = useState<AgendaItem | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
 
+  // Event detail modal
+  const [detailItem, setDetailItem] = useState<AgendaItem | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["agenda"],
     queryFn: async () => {
@@ -78,6 +82,8 @@ export default function Agenda() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["agenda"] });
+      setDetailOpen(false);
+      setDetailItem(null);
       toast.success("Evento excluído");
     },
     onError: () => toast.error("Erro ao excluir evento"),
@@ -87,7 +93,13 @@ export default function Agenda() {
   const openEdit = (item: AgendaItem) => {
     setEditingItem(item);
     setForm({ tipo: item.tipo, observacoes: item.observacoes || "", data: item.data, responsavel: item.responsavel });
+    setDetailOpen(false);
     setDialogOpen(true);
+  };
+
+  const openDetail = (item: AgendaItem) => {
+    setDetailItem(item);
+    setDetailOpen(true);
   };
 
   const handleSubmit = () => {
@@ -99,7 +111,7 @@ export default function Agenda() {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  const startDay = monthStart.getDay(); // 0=Sun
+  const startDay = monthStart.getDay();
 
   const getEventsForDay = (day: Date) => items.filter((i) => isSameDay(parseISO(i.data), day));
 
@@ -136,7 +148,6 @@ export default function Agenda() {
       {isLoading ? (
         <p className="text-muted-foreground">Carregando...</p>
       ) : view === "calendar" ? (
-        /* Calendar view */
         <div className="bg-card rounded-lg border border-border">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 rounded hover:bg-muted"><ChevronLeft className="h-5 w-5" /></button>
@@ -158,11 +169,11 @@ export default function Agenda() {
                   </span>
                   <div className="space-y-0.5 mt-0.5">
                     {events.slice(0, 2).map((ev) => (
-                      <div key={ev.id} onClick={() => isAdmin && openEdit(ev)} className={`text-[10px] leading-tight px-1 py-0.5 rounded truncate ${tipoBadgeColor(ev.tipo)} ${isAdmin ? "cursor-pointer" : ""}`}>
+                      <div key={ev.id} onClick={() => openDetail(ev)} className={`text-[10px] leading-tight px-1 py-0.5 rounded truncate cursor-pointer ${tipoBadgeColor(ev.tipo)}`}>
                         {ev.tipo}
                       </div>
                     ))}
-                    {events.length > 2 && <div className="text-[10px] text-muted-foreground px-1">+{events.length - 2} mais</div>}
+                    {events.length > 2 && <div className="text-[10px] text-muted-foreground px-1 cursor-pointer" onClick={() => openDetail(events[2])}>+{events.length - 2} mais</div>}
                   </div>
                 </div>
               );
@@ -170,7 +181,6 @@ export default function Agenda() {
           </div>
         </div>
       ) : (
-        /* List view */
         <div className="bg-card rounded-lg border border-border overflow-hidden">
           <Table>
             <TableHeader>
@@ -206,7 +216,52 @@ export default function Agenda() {
         </div>
       )}
 
-      {/* Dialog */}
+      {/* Event Detail Modal */}
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do Evento</DialogTitle>
+          </DialogHeader>
+          {detailItem && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Tipo</Label>
+                  <p className="font-medium"><Badge className={tipoBadgeColor(detailItem.tipo)} variant="secondary">{detailItem.tipo}</Badge></p>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Data</Label>
+                  <p className="font-medium">{format(parseISO(detailItem.data), "dd/MM/yyyy")}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Responsável</Label>
+                <p className="font-medium">{detailItem.responsavel}</p>
+              </div>
+              {detailItem.observacoes && (
+                <div>
+                  <Label className="text-xs text-muted-foreground">Observações</Label>
+                  <p className="text-sm">{detailItem.observacoes}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            {isAdmin && detailItem && (
+              <div className="flex gap-2 w-full">
+                <Button variant="outline" size="sm" onClick={() => openEdit(detailItem)}>
+                  <Pencil className="h-4 w-4 mr-1" /> Editar
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => { remove.mutate(detailItem.id); }}>
+                  <Trash2 className="h-4 w-4 mr-1" /> Excluir
+                </Button>
+              </div>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editingItem ? "Editar Evento" : "Novo Evento"}</DialogTitle></DialogHeader>
