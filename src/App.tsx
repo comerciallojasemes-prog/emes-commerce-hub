@@ -12,6 +12,7 @@ import Alertas from "@/pages/Alertas";
 import Bonificacoes from "@/pages/Bonificacoes";
 import Suprimentos from "@/pages/Suprimentos";
 import Solicitacoes from "@/pages/Solicitacoes";
+import Promocoes from "@/pages/Promocoes";
 import Usuarios from "@/pages/Usuarios";
 import NotFound from "@/pages/NotFound";
 
@@ -67,6 +68,7 @@ function ProtectedRoutes() {
           <Route path="usuarios" element={<Usuarios />} />
         )}
         <Route path="suprimentos" element={<Suprimentos />} />
+        <Route path="promocoes" element={<Promocoes />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
     </Routes>

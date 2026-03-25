@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings } from "lucide-react";
+import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings, Tag } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,9 +22,10 @@ const allModules = [
   { title: "Bonificações", url: "/bonificacoes", icon: Gift },
   { title: "Suprimentos", url: "/suprimentos", icon: Package },
   { title: "Solicitações", url: "/solicitacoes", icon: ClipboardList },
+  { title: "Promoções", url: "/promocoes", icon: Tag },
 ];
 
-const lojasModules = ["/suprimentos", "/agenda"];
+const lojasModules = ["/suprimentos", "/agenda", "/promocoes"];
 
 export function AppSidebar() {
   const { state } = useSidebar();
