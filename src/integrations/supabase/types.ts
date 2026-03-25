@@ -164,6 +164,71 @@ export type Database = {
         }
         Relationships: []
       }
+      promocoes: {
+        Row: {
+          created_at: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          id: string
+          lojas: string[]
+          nome: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          lojas: string[]
+          nome: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          id?: string
+          lojas?: string[]
+          nome?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      promocoes_arquivos: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome_arquivo: string
+          promocao_id: string | null
+          tipo: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nome_arquivo: string
+          promocao_id?: string | null
+          tipo: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome_arquivo?: string
+          promocao_id?: string | null
+          tipo?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promocoes_arquivos_promocao_id_fkey"
+            columns: ["promocao_id"]
+            isOneToOne: false
+            referencedRelation: "promocoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solicitacoes: {
         Row: {
           created_at: string | null
