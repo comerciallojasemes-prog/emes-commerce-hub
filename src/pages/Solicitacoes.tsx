@@ -296,6 +296,15 @@ export default function Solicitacoes() {
           </Select>
         </div>
         <Input type="date" value={filtroData} onChange={e => setFiltroData(e.target.value)} className="w-44" />
+        <div className="w-52">
+          <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
+            <SelectTrigger><SelectValue placeholder="Responsável" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os Responsáveis</SelectItem>
+              {responsaveis.map(r => <SelectItem key={r!} value={r!}>{r}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
