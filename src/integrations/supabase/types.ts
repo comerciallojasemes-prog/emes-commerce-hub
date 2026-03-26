@@ -101,6 +101,116 @@ export type Database = {
         }
         Relationships: []
       }
+      defeitos: {
+        Row: {
+          avaliado_por: string | null
+          codigo_produto: string | null
+          created_at: string | null
+          data_avaliacao: string
+          data_avaliacao_comercial: string | null
+          data_compra: string
+          data_venda: string | null
+          ficha_cliente: string | null
+          id: string
+          loja: string
+          motivo_defeito: string
+          nome_cliente: string | null
+          nome_responsavel: string
+          numero_venda: string | null
+          observacao_comercial: string | null
+          referencia_produto: string
+          responsavel_envio: string
+          status: string | null
+          telefone: string | null
+          tipo: string
+          tipo_produto: string
+          updated_at: string | null
+        }
+        Insert: {
+          avaliado_por?: string | null
+          codigo_produto?: string | null
+          created_at?: string | null
+          data_avaliacao: string
+          data_avaliacao_comercial?: string | null
+          data_compra: string
+          data_venda?: string | null
+          ficha_cliente?: string | null
+          id?: string
+          loja: string
+          motivo_defeito: string
+          nome_cliente?: string | null
+          nome_responsavel: string
+          numero_venda?: string | null
+          observacao_comercial?: string | null
+          referencia_produto: string
+          responsavel_envio: string
+          status?: string | null
+          telefone?: string | null
+          tipo: string
+          tipo_produto: string
+          updated_at?: string | null
+        }
+        Update: {
+          avaliado_por?: string | null
+          codigo_produto?: string | null
+          created_at?: string | null
+          data_avaliacao?: string
+          data_avaliacao_comercial?: string | null
+          data_compra?: string
+          data_venda?: string | null
+          ficha_cliente?: string | null
+          id?: string
+          loja?: string
+          motivo_defeito?: string
+          nome_cliente?: string | null
+          nome_responsavel?: string
+          numero_venda?: string | null
+          observacao_comercial?: string | null
+          referencia_produto?: string
+          responsavel_envio?: string
+          status?: string | null
+          telefone?: string | null
+          tipo?: string
+          tipo_produto?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      defeitos_arquivos: {
+        Row: {
+          created_at: string | null
+          defeito_id: string | null
+          id: string
+          nome_arquivo: string
+          tipo_arquivo: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          defeito_id?: string | null
+          id?: string
+          nome_arquivo: string
+          tipo_arquivo?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          defeito_id?: string | null
+          id?: string
+          nome_arquivo?: string
+          tipo_arquivo?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "defeitos_arquivos_defeito_id_fkey"
+            columns: ["defeito_id"]
+            isOneToOne: false
+            referencedRelation: "defeitos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pendencias: {
         Row: {
           contato: string | null
