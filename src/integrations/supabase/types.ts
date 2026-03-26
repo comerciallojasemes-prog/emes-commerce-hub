@@ -238,6 +238,7 @@ export type Database = {
           observacao: string | null
           quantidade: number
           quantidade_enviada: number | null
+          responsavel: string | null
           status: string | null
           tamanho: string | null
           updated_at: string | null
@@ -250,6 +251,7 @@ export type Database = {
           observacao?: string | null
           quantidade: number
           quantidade_enviada?: number | null
+          responsavel?: string | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
@@ -262,6 +264,7 @@ export type Database = {
           observacao?: string | null
           quantidade?: number
           quantidade_enviada?: number | null
+          responsavel?: string | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
