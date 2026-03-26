@@ -70,15 +70,17 @@ export default function Solicitacoes() {
   }, []);
 
   const lojas = useMemo(() => [...new Set(solicitacoes.map(s => s.loja))].sort(), [solicitacoes]);
+  const responsaveis = useMemo(() => [...new Set(solicitacoes.map(s => s.responsavel).filter(Boolean))].sort(), [solicitacoes]);
 
   const filtered = useMemo(() => {
     return solicitacoes.filter(s => {
       if (filtroLoja !== "todas" && s.loja !== filtroLoja) return false;
       if (filtroStatus !== "todos" && s.status !== filtroStatus) return false;
+      if (filtroResponsavel !== "todos" && s.responsavel !== filtroResponsavel) return false;
       if (filtroData && !s.created_at.startsWith(filtroData)) return false;
       return true;
     });
-  }, [solicitacoes, filtroLoja, filtroStatus, filtroData]);
+  }, [solicitacoes, filtroLoja, filtroStatus, filtroData, filtroResponsavel]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, Solicitacao[]>();
