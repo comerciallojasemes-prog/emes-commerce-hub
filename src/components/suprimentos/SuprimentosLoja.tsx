@@ -221,6 +221,19 @@ export default function SuprimentosLoja() {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <Label>Loja *</Label>
+              <Select value={solicitacaoLoja} onValueChange={setSolicitacaoLoja}>
+                <SelectTrigger><SelectValue placeholder="Selecione a loja" /></SelectTrigger>
+                <SelectContent>
+                  {LOJAS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Nome do Responsável *</Label>
+              <Input value={responsavel} onChange={e => setResponsavel(e.target.value)} placeholder="Nome completo" />
+            </div>
+            <div>
               <Label>Item</Label>
               <Select value={selectedItem} onValueChange={handleItemSelect}>
                 <SelectTrigger><SelectValue placeholder="Selecione um item" /></SelectTrigger>
