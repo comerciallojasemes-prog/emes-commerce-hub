@@ -26,7 +26,7 @@ const allModules = [
   { title: "Gestão de Defeitos", url: "/defeitos", icon: ShieldAlert },
 ];
 
-const lojasModules = ["/suprimentos", "/agenda", "/promocoes"];
+const lojasModules = ["/suprimentos", "/agenda", "/promocoes", "/defeitos"];
 
 export function AppSidebar() {
   const { state } = useSidebar();
