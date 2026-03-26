@@ -70,6 +70,7 @@ function ProtectedRoutes() {
         )}
         <Route path="suprimentos" element={<Suprimentos />} />
         <Route path="promocoes" element={<Promocoes />} />
+        <Route path="defeitos" element={<Defeitos />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
     </Routes>
