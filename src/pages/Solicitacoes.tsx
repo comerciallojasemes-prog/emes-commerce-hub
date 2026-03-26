@@ -209,6 +209,7 @@ export default function Solicitacoes() {
             />
           </TableHead>
           <TableHead>Loja</TableHead>
+          <TableHead>Responsável</TableHead>
           <TableHead>Item</TableHead>
           <TableHead>Tamanho</TableHead>
           <TableHead>Qtde</TableHead>
