@@ -116,15 +116,16 @@ export default function SuprimentosLoja() {
   };
 
   const handleEnviarSolicitacao = async () => {
-    if (!selectedItem || !quantidade) { toast.error("Preencha item e quantidade"); return; }
+    if (!selectedItem || !quantidade || !solicitacaoLoja || !responsavel.trim()) { toast.error("Preencha todos os campos obrigatórios"); return; }
     const [prod, tam] = selectedItem.split("||");
     const { error } = await supabase.from("solicitacoes").insert({
-      loja,
+      loja: solicitacaoLoja,
       item: prod,
       tamanho: tam || null,
       quantidade: parseInt(quantidade),
       observacao: observacao || null,
       status: "PENDENTE",
+      responsavel: responsavel.trim(),
     });
     if (error) { toast.error("Erro ao enviar solicitação"); return; }
     toast.success("Solicitação enviada!");
