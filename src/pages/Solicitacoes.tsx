@@ -221,11 +221,12 @@ export default function Solicitacoes() {
       </TableHeader>
       <TableBody>
         {items.length === 0 ? (
-          <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
+          <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
         ) : items.map(sol => (
           <TableRow key={sol.id}>
             <TableCell><Checkbox checked={selecionados.has(sol.id)} onCheckedChange={() => toggleSelect(sol.id)} /></TableCell>
             <TableCell className="font-medium">{sol.loja}</TableCell>
+            <TableCell>{sol.responsavel || "—"}</TableCell>
             <TableCell>{sol.item}</TableCell>
             <TableCell>{sol.tamanho || "—"}</TableCell>
             <TableCell>{sol.quantidade}</TableCell>
