@@ -45,6 +45,7 @@ export default function Solicitacoes() {
   const [filtroLoja, setFiltroLoja] = useState("todas");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroData, setFiltroData] = useState("");
+  const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
   const [verPorLoja, setVerPorLoja] = useState(false);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
 
