@@ -22,6 +22,7 @@ interface Solicitacao {
   quantidade: number;
   quantidade_enviada: number | null;
   observacao: string | null;
+  responsavel: string | null;
   status: string;
   created_at: string;
   updated_at: string;
