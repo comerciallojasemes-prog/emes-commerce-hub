@@ -14,6 +14,7 @@ import Suprimentos from "@/pages/Suprimentos";
 import Solicitacoes from "@/pages/Solicitacoes";
 import Promocoes from "@/pages/Promocoes";
 import Usuarios from "@/pages/Usuarios";
+import Defeitos from "@/pages/Defeitos";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ function ProtectedRoutes() {
         )}
         <Route path="suprimentos" element={<Suprimentos />} />
         <Route path="promocoes" element={<Promocoes />} />
+        <Route path="defeitos" element={<Defeitos />} />
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
     </Routes>
