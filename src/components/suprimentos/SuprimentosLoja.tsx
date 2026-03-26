@@ -133,6 +133,7 @@ export default function SuprimentosLoja() {
     setSelectedTamanho("");
     setQuantidade("");
     setObservacao("");
+    setResponsavel("");
     fetchAll();
   };
 
