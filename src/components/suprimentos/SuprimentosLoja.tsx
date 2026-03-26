@@ -68,6 +68,10 @@ export default function SuprimentosLoja() {
   const [selectedTamanho, setSelectedTamanho] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [observacao, setObservacao] = useState("");
+  const [solicitacaoLoja, setSolicitacaoLoja] = useState(loja);
+  const [responsavel, setResponsavel] = useState("");
+
+  const LOJAS = ["Loja 4", "Loja 5", "Loja 6", "Loja 7", "Loja 8", "Loja 9", "Loja 10", "Loja 11", "Loja 12", "Loja 13", "Loja 14"];
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -112,15 +116,16 @@ export default function SuprimentosLoja() {
   };
 
   const handleEnviarSolicitacao = async () => {
-    if (!selectedItem || !quantidade) { toast.error("Preencha item e quantidade"); return; }
+    if (!selectedItem || !quantidade || !solicitacaoLoja || !responsavel.trim()) { toast.error("Preencha todos os campos obrigatórios"); return; }
     const [prod, tam] = selectedItem.split("||");
     const { error } = await supabase.from("solicitacoes").insert({
-      loja,
+      loja: solicitacaoLoja,
       item: prod,
       tamanho: tam || null,
       quantidade: parseInt(quantidade),
       observacao: observacao || null,
       status: "PENDENTE",
+      responsavel: responsavel.trim(),
     });
     if (error) { toast.error("Erro ao enviar solicitação"); return; }
     toast.success("Solicitação enviada!");
@@ -128,6 +133,7 @@ export default function SuprimentosLoja() {
     setSelectedTamanho("");
     setQuantidade("");
     setObservacao("");
+    setResponsavel("");
     fetchAll();
   };
 
@@ -214,6 +220,19 @@ export default function SuprimentosLoja() {
         <CardHeader><CardTitle>📋 Solicitar Material ao Depósito</CardTitle></CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label>Loja *</Label>
+              <Select value={solicitacaoLoja} onValueChange={setSolicitacaoLoja}>
+                <SelectTrigger><SelectValue placeholder="Selecione a loja" /></SelectTrigger>
+                <SelectContent>
+                  {LOJAS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Nome do Responsável *</Label>
+              <Input value={responsavel} onChange={e => setResponsavel(e.target.value)} placeholder="Nome completo" />
+            </div>
             <div>
               <Label>Item</Label>
               <Select value={selectedItem} onValueChange={handleItemSelect}>

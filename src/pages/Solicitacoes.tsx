@@ -22,6 +22,7 @@ interface Solicitacao {
   quantidade: number;
   quantidade_enviada: number | null;
   observacao: string | null;
+  responsavel: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -44,6 +45,7 @@ export default function Solicitacoes() {
   const [filtroLoja, setFiltroLoja] = useState("todas");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroData, setFiltroData] = useState("");
+  const [filtroResponsavel, setFiltroResponsavel] = useState("todos");
   const [verPorLoja, setVerPorLoja] = useState(false);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
 
@@ -68,15 +70,17 @@ export default function Solicitacoes() {
   }, []);
 
   const lojas = useMemo(() => [...new Set(solicitacoes.map(s => s.loja))].sort(), [solicitacoes]);
+  const responsaveis = useMemo(() => [...new Set(solicitacoes.map(s => s.responsavel).filter(Boolean))].sort(), [solicitacoes]);
 
   const filtered = useMemo(() => {
     return solicitacoes.filter(s => {
       if (filtroLoja !== "todas" && s.loja !== filtroLoja) return false;
       if (filtroStatus !== "todos" && s.status !== filtroStatus) return false;
+      if (filtroResponsavel !== "todos" && s.responsavel !== filtroResponsavel) return false;
       if (filtroData && !s.created_at.startsWith(filtroData)) return false;
       return true;
     });
-  }, [solicitacoes, filtroLoja, filtroStatus, filtroData]);
+  }, [solicitacoes, filtroLoja, filtroStatus, filtroData, filtroResponsavel]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, Solicitacao[]>();
@@ -205,6 +209,7 @@ export default function Solicitacoes() {
             />
           </TableHead>
           <TableHead>Loja</TableHead>
+          <TableHead>Responsável</TableHead>
           <TableHead>Item</TableHead>
           <TableHead>Tamanho</TableHead>
           <TableHead>Qtde</TableHead>
@@ -216,11 +221,12 @@ export default function Solicitacoes() {
       </TableHeader>
       <TableBody>
         {items.length === 0 ? (
-          <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
+          <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
         ) : items.map(sol => (
           <TableRow key={sol.id}>
             <TableCell><Checkbox checked={selecionados.has(sol.id)} onCheckedChange={() => toggleSelect(sol.id)} /></TableCell>
             <TableCell className="font-medium">{sol.loja}</TableCell>
+            <TableCell>{sol.responsavel || "—"}</TableCell>
             <TableCell>{sol.item}</TableCell>
             <TableCell>{sol.tamanho || "—"}</TableCell>
             <TableCell>{sol.quantidade}</TableCell>
@@ -290,6 +296,15 @@ export default function Solicitacoes() {
           </Select>
         </div>
         <Input type="date" value={filtroData} onChange={e => setFiltroData(e.target.value)} className="w-44" />
+        <div className="w-52">
+          <Select value={filtroResponsavel} onValueChange={setFiltroResponsavel}>
+            <SelectTrigger><SelectValue placeholder="Responsável" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os Responsáveis</SelectItem>
+              {responsaveis.map(r => <SelectItem key={r!} value={r!}>{r}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
