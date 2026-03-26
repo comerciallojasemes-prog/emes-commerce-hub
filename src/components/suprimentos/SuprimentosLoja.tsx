@@ -68,6 +68,10 @@ export default function SuprimentosLoja() {
   const [selectedTamanho, setSelectedTamanho] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [observacao, setObservacao] = useState("");
+  const [solicitacaoLoja, setSolicitacaoLoja] = useState(loja);
+  const [responsavel, setResponsavel] = useState("");
+
+  const LOJAS = ["Loja 4", "Loja 5", "Loja 6", "Loja 7", "Loja 8", "Loja 9", "Loja 10", "Loja 11", "Loja 12", "Loja 13", "Loja 14"];
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
