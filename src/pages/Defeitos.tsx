@@ -266,7 +266,7 @@ export default function Defeitos() {
             </div>
 
             <div className="space-y-2">
-              <Label>Data da compra (recebimento NF) *</Label>
+              <Label>Data da compra *</Label>
               <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
             </div>
 

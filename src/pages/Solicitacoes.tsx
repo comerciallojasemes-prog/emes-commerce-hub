@@ -110,6 +110,10 @@ export default function Solicitacoes() {
   };
 
   const confirmEnviar = async () => {
+    if (!enviarResponsavel.trim()) {
+      toast.error("Informe o responsável pelo envio");
+      return;
+    }
     for (const id of enviarIds) {
       const sol = solicitacoes.find(s => s.id === id);
       if (!sol) continue;
@@ -118,6 +122,8 @@ export default function Solicitacoes() {
       const { error } = await supabase.from("solicitacoes").update({
         status: "ENVIADO",
         quantidade_enviada: qtdEnviada,
+        data_envio: enviarDataEnvio,
+        responsavel_envio: enviarResponsavel.trim(),
         updated_at: new Date().toISOString(),
       }).eq("id", id);
       if (error) { toast.error(`Erro ao atualizar: ${error.message}`); return; }
