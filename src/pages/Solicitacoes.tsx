@@ -104,6 +104,8 @@ export default function Solicitacoes() {
     });
     setEnviarIds(ids);
     setEnviarQuantidades(qtds);
+    setEnviarDataEnvio(format(new Date(), "yyyy-MM-dd"));
+    setEnviarResponsavel("");
     setEnviarModalOpen(true);
   };
 
