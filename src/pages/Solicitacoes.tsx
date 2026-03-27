@@ -26,6 +26,8 @@ interface Solicitacao {
   status: string;
   created_at: string;
   updated_at: string;
+  data_envio: string | null;
+  responsavel_envio: string | null;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -53,6 +55,8 @@ export default function Solicitacoes() {
   const [enviarModalOpen, setEnviarModalOpen] = useState(false);
   const [enviarIds, setEnviarIds] = useState<string[]>([]);
   const [enviarQuantidades, setEnviarQuantidades] = useState<Record<string, number>>({});
+  const [enviarDataEnvio, setEnviarDataEnvio] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [enviarResponsavel, setEnviarResponsavel] = useState("");
 
   const fetchSolicitacoes = async () => {
     const { data } = await supabase.from("solicitacoes").select("*").order("created_at", { ascending: false });
@@ -100,10 +104,16 @@ export default function Solicitacoes() {
     });
     setEnviarIds(ids);
     setEnviarQuantidades(qtds);
+    setEnviarDataEnvio(format(new Date(), "yyyy-MM-dd"));
+    setEnviarResponsavel("");
     setEnviarModalOpen(true);
   };
 
   const confirmEnviar = async () => {
+    if (!enviarResponsavel.trim()) {
+      toast.error("Informe o responsável pelo envio");
+      return;
+    }
     for (const id of enviarIds) {
       const sol = solicitacoes.find(s => s.id === id);
       if (!sol) continue;
@@ -112,6 +122,8 @@ export default function Solicitacoes() {
       const { error } = await supabase.from("solicitacoes").update({
         status: "ENVIADO",
         quantidade_enviada: qtdEnviada,
+        data_envio: enviarDataEnvio,
+        responsavel_envio: enviarResponsavel.trim(),
         updated_at: new Date().toISOString(),
       }).eq("id", id);
       if (error) { toast.error(`Erro ao atualizar: ${error.message}`); return; }
@@ -214,6 +226,8 @@ export default function Solicitacoes() {
           <TableHead>Tamanho</TableHead>
           <TableHead>Qtde</TableHead>
           <TableHead>Qtde Enviada</TableHead>
+          <TableHead>Data Envio</TableHead>
+          <TableHead>Resp. Envio</TableHead>
           <TableHead>Data</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Ações</TableHead>
@@ -221,7 +235,7 @@ export default function Solicitacoes() {
       </TableHeader>
       <TableBody>
         {items.length === 0 ? (
-          <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
+          <TableRow><TableCell colSpan={12} className="text-center text-muted-foreground py-8">Nenhuma solicitação encontrada.</TableCell></TableRow>
         ) : items.map(sol => (
           <TableRow key={sol.id}>
             <TableCell><Checkbox checked={selecionados.has(sol.id)} onCheckedChange={() => toggleSelect(sol.id)} /></TableCell>
@@ -231,6 +245,8 @@ export default function Solicitacoes() {
             <TableCell>{sol.tamanho || "—"}</TableCell>
             <TableCell>{sol.quantidade}</TableCell>
             <TableCell>{sol.quantidade_enviada ?? "—"}</TableCell>
+            <TableCell className="text-sm">{sol.data_envio ? format(new Date(sol.data_envio), "dd/MM/yyyy") : "—"}</TableCell>
+            <TableCell>{sol.responsavel_envio || "—"}</TableCell>
             <TableCell className="text-sm">{format(new Date(sol.created_at), "dd/MM/yyyy")}</TableCell>
             <TableCell><StatusBadge status={sol.status || "PENDENTE"} /></TableCell>
             <TableCell>
@@ -332,6 +348,16 @@ export default function Solicitacoes() {
             <DialogTitle>Confirmar Envio</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Data de envio *</Label>
+                <Input type="date" value={enviarDataEnvio} onChange={e => setEnviarDataEnvio(e.target.value)} className="h-8" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Responsável pelo envio *</Label>
+                <Input value={enviarResponsavel} onChange={e => setEnviarResponsavel(e.target.value)} placeholder="Nome do responsável" className="h-8" />
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground">Confirme a quantidade a enviar para cada item:</p>
             {enviarIds.map(id => {
               const sol = solicitacoes.find(s => s.id === id);
