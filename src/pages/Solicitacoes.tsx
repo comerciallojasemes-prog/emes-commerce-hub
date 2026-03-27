@@ -348,6 +348,16 @@ export default function Solicitacoes() {
             <DialogTitle>Confirmar Envio</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Data de envio *</Label>
+                <Input type="date" value={enviarDataEnvio} onChange={e => setEnviarDataEnvio(e.target.value)} className="h-8" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Responsável pelo envio *</Label>
+                <Input value={enviarResponsavel} onChange={e => setEnviarResponsavel(e.target.value)} placeholder="Nome do responsável" className="h-8" />
+              </div>
+            </div>
             <p className="text-sm text-muted-foreground">Confirme a quantidade a enviar para cada item:</p>
             {enviarIds.map(id => {
               const sol = solicitacoes.find(s => s.id === id);
