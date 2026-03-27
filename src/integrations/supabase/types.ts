@@ -342,6 +342,7 @@ export type Database = {
       solicitacoes: {
         Row: {
           created_at: string | null
+          data_envio: string | null
           id: string
           item: string
           loja: string
@@ -349,12 +350,14 @@ export type Database = {
           quantidade: number
           quantidade_enviada: number | null
           responsavel: string | null
+          responsavel_envio: string | null
           status: string | null
           tamanho: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
+          data_envio?: string | null
           id?: string
           item: string
           loja: string
@@ -362,12 +365,14 @@ export type Database = {
           quantidade: number
           quantidade_enviada?: number | null
           responsavel?: string | null
+          responsavel_envio?: string | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
+          data_envio?: string | null
           id?: string
           item?: string
           loja?: string
@@ -375,6 +380,7 @@ export type Database = {
           quantidade?: number
           quantidade_enviada?: number | null
           responsavel?: string | null
+          responsavel_envio?: string | null
           status?: string | null
           tamanho?: string | null
           updated_at?: string | null
