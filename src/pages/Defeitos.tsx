@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, AlertTriangle } from "lucide-react";
+import { Plus, AlertTriangle, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
