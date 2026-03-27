@@ -245,6 +245,8 @@ export default function Solicitacoes() {
             <TableCell>{sol.tamanho || "—"}</TableCell>
             <TableCell>{sol.quantidade}</TableCell>
             <TableCell>{sol.quantidade_enviada ?? "—"}</TableCell>
+            <TableCell className="text-sm">{sol.data_envio ? format(new Date(sol.data_envio), "dd/MM/yyyy") : "—"}</TableCell>
+            <TableCell>{sol.responsavel_envio || "—"}</TableCell>
             <TableCell className="text-sm">{format(new Date(sol.created_at), "dd/MM/yyyy")}</TableCell>
             <TableCell><StatusBadge status={sol.status || "PENDENTE"} /></TableCell>
             <TableCell>
