@@ -226,6 +226,8 @@ export default function Solicitacoes() {
           <TableHead>Tamanho</TableHead>
           <TableHead>Qtde</TableHead>
           <TableHead>Qtde Enviada</TableHead>
+          <TableHead>Data Envio</TableHead>
+          <TableHead>Resp. Envio</TableHead>
           <TableHead>Data</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Ações</TableHead>
