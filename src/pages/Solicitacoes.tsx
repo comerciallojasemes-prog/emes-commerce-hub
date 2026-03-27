@@ -55,6 +55,8 @@ export default function Solicitacoes() {
   const [enviarModalOpen, setEnviarModalOpen] = useState(false);
   const [enviarIds, setEnviarIds] = useState<string[]>([]);
   const [enviarQuantidades, setEnviarQuantidades] = useState<Record<string, number>>({});
+  const [enviarDataEnvio, setEnviarDataEnvio] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [enviarResponsavel, setEnviarResponsavel] = useState("");
 
   const fetchSolicitacoes = async () => {
     const { data } = await supabase.from("solicitacoes").select("*").order("created_at", { ascending: false });
