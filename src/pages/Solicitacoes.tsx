@@ -26,6 +26,8 @@ interface Solicitacao {
   status: string;
   created_at: string;
   updated_at: string;
+  data_envio: string | null;
+  responsavel_envio: string | null;
 }
 
 function StatusBadge({ status }: { status: string }) {
