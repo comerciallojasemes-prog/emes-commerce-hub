@@ -167,12 +167,16 @@ export default function Defeitos() {
   };
 
   const handleSubmit = async () => {
-    if (!formLoja || !formNomeResponsavel || !formTipoProduto || !formDataAvaliacao || !formReferencia || !formMotivo || !formDataCompra || !formResponsavelEnvio) {
+    if (!formLoja || !formNomeResponsavel || !formTipoProduto || !formDataAvaliacao || !formReferencia || !formMotivo) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
     if (activeTab === "CLIENTE" && (!formNomeCliente || !formFichaCliente || !formTelefone || !formNumeroVenda || !formDataVenda)) {
       toast.error("Preencha todos os campos obrigatórios do cliente");
+      return;
+    }
+    if (activeTab === "LOJA" && !formDataCompra) {
+      toast.error("Preencha a Data da compra");
       return;
     }
 
@@ -186,8 +190,8 @@ export default function Defeitos() {
       referencia_produto: formReferencia,
       codigo_produto: formCodigo || null,
       motivo_defeito: formMotivo,
-      data_compra: formDataCompra,
-      responsavel_envio: formResponsavelEnvio,
+      data_compra: activeTab === "LOJA" ? formDataCompra : formDataAvaliacao,
+      responsavel_envio: formNomeResponsavel,
       observacao_comercial: formObservacao || null,
     };
 
@@ -553,15 +557,12 @@ export default function Defeitos() {
               <Textarea value={formMotivo} onChange={e => setFormMotivo(e.target.value)} />
             </div>
 
-            <div className="space-y-2">
-              <Label>Data da compra *</Label>
-              <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Responsável pelo envio *</Label>
-              <Input value={formResponsavelEnvio} onChange={e => setFormResponsavelEnvio(e.target.value)} />
-            </div>
+            {activeTab === "LOJA" && (
+              <div className="space-y-2">
+                <Label>Data da compra *</Label>
+                <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
+              </div>
+            )}
 
             <div className="space-y-2 md:col-span-2">
               <Label>Observações</Label>
