@@ -557,15 +557,12 @@ export default function Defeitos() {
               <Textarea value={formMotivo} onChange={e => setFormMotivo(e.target.value)} />
             </div>
 
-            <div className="space-y-2">
-              <Label>Data da compra *</Label>
-              <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Responsável pelo envio *</Label>
-              <Input value={formResponsavelEnvio} onChange={e => setFormResponsavelEnvio(e.target.value)} />
-            </div>
+            {activeTab === "LOJA" && (
+              <div className="space-y-2">
+                <Label>Data da compra *</Label>
+                <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
+              </div>
+            )}
 
             <div className="space-y-2 md:col-span-2">
               <Label>Observações</Label>
