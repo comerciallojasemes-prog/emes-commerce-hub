@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3 } from "lucide-react";
+import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3, Upload, Download, X, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const LOJAS = ["Loja 4", "Loja 5", "Loja 6", "Loja 7", "Loja 8", "Loja 9", "Loja 10", "Loja 11", "Loja 12", "Loja 13", "Loja 14 (em breve)"];
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 interface Defeito {
   id: string;
@@ -43,6 +45,14 @@ interface Defeito {
   updated_at: string;
 }
 
+interface DefeitoArquivo {
+  id: string;
+  defeito_id: string;
+  nome_arquivo: string;
+  url: string;
+  tipo_arquivo: string | null;
+}
+
 const statusBadge = (status: string) => {
   switch (status) {
     case "AGUARDANDO ANÁLISE": return <Badge className="bg-[#F5C800] hover:bg-[#e0b800] text-black">🟡 AGUARDANDO ANÁLISE</Badge>;
@@ -54,6 +64,14 @@ const statusBadge = (status: string) => {
 };
 
 const PIE_COLORS = ["#F5C800", "#22c55e", "#ef4444", "#3b82f6", "#8b5cf6", "#f97316", "#06b6d4", "#ec4899"];
+
+const isImageFile = (name: string) => /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(name);
+const isVideoFile = (name: string) => /\.(mp4|mov|avi|webm|mkv|wmv)$/i.test(name);
+
+const getPublicUrl = (path: string) => {
+  const { data } = supabase.storage.from("defeitos").getPublicUrl(path);
+  return data.publicUrl;
+};
 
 const printDefeito = (d: Defeito) => {
   const w = window.open("", "_blank");
@@ -97,6 +115,8 @@ export default function Defeitos() {
   const [selectedDefeito, setSelectedDefeito] = useState<Defeito | null>(null);
   const [obsComercial, setObsComercial] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [detailArquivos, setDetailArquivos] = useState<DefeitoArquivo[]>([]);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   // Filters (Admin/Comercial)
   const [filterLoja, setFilterLoja] = useState("all");
@@ -124,6 +144,7 @@ export default function Defeitos() {
   const [formTelefone, setFormTelefone] = useState("");
   const [formNumeroVenda, setFormNumeroVenda] = useState("");
   const [formDataVenda, setFormDataVenda] = useState("");
+  const [formFiles, setFormFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   const isAdminOrComercial = perfil?.perfil === "Admin" || perfil?.perfil === "Comercial";
@@ -148,6 +169,20 @@ export default function Defeitos() {
 
   useEffect(() => { fetchDefeitos(); }, []);
 
+  const fetchArquivos = async (defeitoId: string) => {
+    const { data } = await supabase
+      .from("defeitos_arquivos")
+      .select("*")
+      .eq("defeito_id", defeitoId);
+    setDetailArquivos((data as DefeitoArquivo[]) || []);
+  };
+
+  const openDetail = (d: Defeito) => {
+    setSelectedDefeito(d);
+    setObsComercial(d.observacao_comercial || "");
+    fetchArquivos(d.id);
+  };
+
   const resetForm = () => {
     setFormNomeResponsavel("");
     setFormTipoProduto("");
@@ -163,7 +198,37 @@ export default function Defeitos() {
     setFormTelefone("");
     setFormNumeroVenda("");
     setFormDataVenda("");
+    setFormFiles([]);
     if (perfil?.loja) setFormLoja(perfil.loja);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFormFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeFormFile = (index: number) => {
+    setFormFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async (defeitoId: string) => {
+    for (const file of formFiles) {
+      const ext = file.name.split(".").pop();
+      const path = `${defeitoId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("defeitos").upload(path, file);
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        continue;
+      }
+      const publicUrl = getPublicUrl(path);
+      await supabase.from("defeitos_arquivos").insert({
+        defeito_id: defeitoId,
+        nome_arquivo: file.name,
+        url: publicUrl,
+        tipo_arquivo: file.type,
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -203,10 +268,13 @@ export default function Defeitos() {
       payload.data_venda = formDataVenda;
     }
 
-    const { error } = await supabase.from("defeitos").insert(payload);
+    const { data, error } = await supabase.from("defeitos").insert(payload).select("id").single();
     if (error) {
       toast.error("Erro ao registrar defeito: " + error.message);
     } else {
+      if (formFiles.length > 0 && data) {
+        await uploadFiles(data.id);
+      }
       toast.success("Defeito registrado com sucesso!");
       setShowForm(false);
       resetForm();
@@ -234,9 +302,25 @@ export default function Defeitos() {
       toast.success(`Status atualizado para ${newStatus}`);
       setSelectedDefeito(null);
       setObsComercial("");
+      setDetailArquivos([]);
       fetchDefeitos();
     }
     setUpdatingStatus(false);
+  };
+
+  const downloadFile = async (url: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.target = "_blank";
+    a.click();
+  };
+
+  const downloadAll = async () => {
+    for (const arq of detailArquivos) {
+      downloadFile(arq.url, arq.nome_arquivo);
+      await new Promise(r => setTimeout(r, 300));
+    }
   };
 
   // Filtered defeitos for table
@@ -336,10 +420,10 @@ export default function Defeitos() {
               </div>
 
               <TabsContent value="CLIENTE">
-                <AdminDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="CLIENTE" onView={(d) => { setSelectedDefeito(d); setObsComercial(d.observacao_comercial || ""); }} />
+                <AdminDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="CLIENTE" onView={openDetail} />
               </TabsContent>
               <TabsContent value="LOJA">
-                <AdminDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="LOJA" onView={(d) => { setSelectedDefeito(d); setObsComercial(d.observacao_comercial || ""); }} />
+                <AdminDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="LOJA" onView={openDetail} />
               </TabsContent>
             </Tabs>
           </TabsContent>
@@ -410,7 +494,7 @@ export default function Defeitos() {
           </TabsContent>
         </Tabs>
       ) : (
-        /* Lojas view - same as before */
+        /* Lojas view */
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "CLIENTE" | "LOJA")}>
           <TabsList>
             <TabsTrigger value="CLIENTE">Defeito Cliente</TabsTrigger>
@@ -426,8 +510,8 @@ export default function Defeitos() {
       )}
 
       {/* Detail Modal (Admin/Comercial) */}
-      <Dialog open={!!selectedDefeito} onOpenChange={(open) => { if (!open) setSelectedDefeito(null); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <Dialog open={!!selectedDefeito} onOpenChange={(open) => { if (!open) { setSelectedDefeito(null); setDetailArquivos([]); setLightboxUrl(null); } }}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhes do Defeito — {selectedDefeito?.tipo === "CLIENTE" ? "Cliente" : "Loja"}</DialogTitle>
           </DialogHeader>
@@ -460,6 +544,54 @@ export default function Defeitos() {
                 )}
               </div>
 
+              {/* Galeria de Arquivos */}
+              {detailArquivos.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">Fotos e Vídeos Anexados ({detailArquivos.length})</Label>
+                    <Button size="sm" variant="outline" onClick={downloadAll}>
+                      <Download className="h-4 w-4 mr-1" /> Baixar Todos
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                    {detailArquivos.map(arq => (
+                      <div key={arq.id} className="relative group border rounded-lg overflow-hidden bg-muted">
+                        {isImageFile(arq.nome_arquivo) ? (
+                          <img
+                            src={arq.url}
+                            alt={arq.nome_arquivo}
+                            className="w-full h-24 object-cover cursor-pointer"
+                            onClick={() => setLightboxUrl(arq.url)}
+                          />
+                        ) : isVideoFile(arq.nome_arquivo) ? (
+                          <video
+                            src={arq.url}
+                            className="w-full h-24 object-cover cursor-pointer"
+                            onClick={() => setLightboxUrl(arq.url)}
+                            muted
+                          />
+                        ) : (
+                          <div className="w-full h-24 flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
+                            {arq.nome_arquivo}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                          {(isImageFile(arq.nome_arquivo) || isVideoFile(arq.nome_arquivo)) && (
+                            <Button size="icon" variant="secondary" className="h-7 w-7" onClick={() => setLightboxUrl(arq.url)}>
+                              <ZoomIn className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button size="icon" variant="secondary" className="h-7 w-7" onClick={() => downloadFile(arq.url, arq.nome_arquivo)}>
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground truncate px-1 py-0.5">{arq.nome_arquivo}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label>Observação do Comercial</Label>
                 <Textarea value={obsComercial} onChange={e => setObsComercial(e.target.value)} placeholder="Adicione observações..." />
@@ -484,6 +616,19 @@ export default function Defeitos() {
         </DialogContent>
       </Dialog>
 
+      {/* Lightbox */}
+      <Dialog open={!!lightboxUrl} onOpenChange={(open) => { if (!open) setLightboxUrl(null); }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-2">
+          {lightboxUrl && (
+            isVideoFile(lightboxUrl) ? (
+              <video src={lightboxUrl} controls autoPlay className="w-full max-h-[80vh] object-contain rounded" />
+            ) : (
+              <img src={lightboxUrl} alt="Ampliação" className="w-full max-h-[80vh] object-contain rounded" />
+            )
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
@@ -503,7 +648,7 @@ export default function Defeitos() {
             </div>
 
             <div className="space-y-2">
-              <Label>Nome do responsável *</Label>
+              <Label>Responsável pelo registro *</Label>
               <Input value={formNomeResponsavel} onChange={e => setFormNomeResponsavel(e.target.value)} />
             </div>
 
@@ -563,6 +708,47 @@ export default function Defeitos() {
                 <Input type="date" value={formDataCompra} onChange={e => setFormDataCompra(e.target.value)} />
               </div>
             )}
+
+            {/* Upload de fotos e vídeos */}
+            <div className="space-y-2 md:col-span-2">
+              <Label>Fotos e Vídeos</Label>
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors w-full justify-center">
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Clique para selecionar arquivos</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </div>
+              {formFiles.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  {formFiles.map((file, i) => (
+                    <div key={i} className="relative border rounded-lg overflow-hidden bg-muted group">
+                      {file.type.startsWith("image/") ? (
+                        <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-20 object-cover" />
+                      ) : file.type.startsWith("video/") ? (
+                        <video src={URL.createObjectURL(file)} className="w-full h-20 object-cover" muted />
+                      ) : (
+                        <div className="w-full h-20 flex items-center justify-center text-xs text-muted-foreground p-1 text-center">{file.name}</div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeFormFile(i)}
+                        className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                      <p className="text-[10px] text-muted-foreground truncate px-1">{file.name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2 md:col-span-2">
               <Label>Observações</Label>
