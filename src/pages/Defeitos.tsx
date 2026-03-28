@@ -190,8 +190,8 @@ export default function Defeitos() {
       referencia_produto: formReferencia,
       codigo_produto: formCodigo || null,
       motivo_defeito: formMotivo,
-      data_compra: formDataCompra,
-      responsavel_envio: formResponsavelEnvio,
+      data_compra: activeTab === "LOJA" ? formDataCompra : formDataAvaliacao,
+      responsavel_envio: formNomeResponsavel,
       observacao_comercial: formObservacao || null,
     };
 
