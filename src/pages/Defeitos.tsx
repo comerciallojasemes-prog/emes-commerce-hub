@@ -167,12 +167,16 @@ export default function Defeitos() {
   };
 
   const handleSubmit = async () => {
-    if (!formLoja || !formNomeResponsavel || !formTipoProduto || !formDataAvaliacao || !formReferencia || !formMotivo || !formDataCompra || !formResponsavelEnvio) {
+    if (!formLoja || !formNomeResponsavel || !formTipoProduto || !formDataAvaliacao || !formReferencia || !formMotivo) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
     if (activeTab === "CLIENTE" && (!formNomeCliente || !formFichaCliente || !formTelefone || !formNumeroVenda || !formDataVenda)) {
       toast.error("Preencha todos os campos obrigatórios do cliente");
+      return;
+    }
+    if (activeTab === "LOJA" && !formDataCompra) {
+      toast.error("Preencha a Data da compra");
       return;
     }
 
