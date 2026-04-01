@@ -11,9 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3, Upload, Download, X, ZoomIn } from "lucide-react";
+import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3, Upload, Download, X, ZoomIn, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import RelogiosTab from "@/components/defeitos/RelogiosTab";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const LOJAS = ["Loja 4", "Loja 5", "Loja 6", "Loja 7", "Loja 8", "Loja 9", "Loja 10", "Loja 11", "Loja 12", "Loja 13", "Loja 14 (em breve)"];
