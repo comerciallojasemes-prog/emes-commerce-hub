@@ -24,6 +24,7 @@ const allModules = [
   { title: "Solicitações", url: "/solicitacoes", icon: ClipboardList },
   { title: "Promoções", url: "/promocoes", icon: Tag },
   { title: "Gestão de Defeitos", url: "/defeitos", icon: ShieldAlert },
+  { title: "Gestão de Equipe", url: "/equipe", icon: Users },
 ];
 
 const lojasModules = ["/suprimentos", "/agenda", "/promocoes", "/defeitos"];
