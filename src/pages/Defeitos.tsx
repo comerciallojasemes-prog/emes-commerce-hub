@@ -430,6 +430,10 @@ export default function Defeitos() {
             </Tabs>
           </TabsContent>
 
+          <TabsContent value="relogios">
+            <RelogiosTab />
+          </TabsContent>
+
           <TabsContent value="dashboard">
             <div className="space-y-6">
               <div className="flex gap-3 items-end">
