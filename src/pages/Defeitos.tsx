@@ -110,7 +110,7 @@ export default function Defeitos() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"CLIENTE" | "LOJA">("CLIENTE");
-  const [mainTab, setMainTab] = useState<"defeitos" | "dashboard">("defeitos");
+  const [mainTab, setMainTab] = useState<"defeitos" | "relogios" | "dashboard">("defeitos");
 
   // Detail modal
   const [selectedDefeito, setSelectedDefeito] = useState<Defeito | null>(null);
