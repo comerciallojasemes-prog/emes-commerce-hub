@@ -268,6 +268,39 @@ export type Database = {
         }
         Relationships: []
       }
+      escala: {
+        Row: {
+          ano: number
+          colaborador: string
+          created_at: string | null
+          dia: number
+          folga: boolean | null
+          id: string
+          mes: number
+          turno: string | null
+        }
+        Insert: {
+          ano: number
+          colaborador: string
+          created_at?: string | null
+          dia: number
+          folga?: boolean | null
+          id?: string
+          mes: number
+          turno?: string | null
+        }
+        Update: {
+          ano?: number
+          colaborador?: string
+          created_at?: string | null
+          dia?: number
+          folga?: boolean | null
+          id?: string
+          mes?: number
+          turno?: string | null
+        }
+        Relationships: []
+      }
       pendencias: {
         Row: {
           contato: string | null
@@ -327,6 +360,48 @@ export type Database = {
           loja?: string | null
           nome?: string
           perfil?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
+      ponto_lanche: {
+        Row: {
+          colaborador_id: string
+          colaborador_nome: string
+          created_at: string | null
+          data: string
+          duracao_minutos: number | null
+          editado_por: string | null
+          id: string
+          pausa: string
+          retorno: string | null
+          saida: string | null
+          status: string | null
+        }
+        Insert: {
+          colaborador_id: string
+          colaborador_nome: string
+          created_at?: string | null
+          data?: string
+          duracao_minutos?: number | null
+          editado_por?: string | null
+          id?: string
+          pausa: string
+          retorno?: string | null
+          saida?: string | null
+          status?: string | null
+        }
+        Update: {
+          colaborador_id?: string
+          colaborador_nome?: string
+          created_at?: string | null
+          data?: string
+          duracao_minutos?: number | null
+          editado_por?: string | null
+          id?: string
+          pausa?: string
+          retorno?: string | null
+          saida?: string | null
           status?: string | null
         }
         Relationships: []
@@ -507,6 +582,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_admin_or_andreia: { Args: { _user_id: string }; Returns: boolean }
       is_admin_or_comercial: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
