@@ -11,9 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3, Upload, Download, X, ZoomIn } from "lucide-react";
+import { Plus, AlertTriangle, Printer, Eye, CheckCircle, XCircle, Package, BarChart3, Upload, Download, X, ZoomIn, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import RelogiosTab from "@/components/defeitos/RelogiosTab";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 const LOJAS = ["Loja 4", "Loja 5", "Loja 6", "Loja 7", "Loja 8", "Loja 9", "Loja 10", "Loja 11", "Loja 12", "Loja 13", "Loja 14 (em breve)"];
@@ -109,7 +110,7 @@ export default function Defeitos() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState<"CLIENTE" | "LOJA">("CLIENTE");
-  const [mainTab, setMainTab] = useState<"defeitos" | "dashboard">("defeitos");
+  const [mainTab, setMainTab] = useState<"defeitos" | "relogios" | "dashboard">("defeitos");
 
   // Detail modal
   const [selectedDefeito, setSelectedDefeito] = useState<Defeito | null>(null);
@@ -385,6 +386,7 @@ export default function Defeitos() {
         <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as any)}>
           <TabsList>
             <TabsTrigger value="defeitos">Defeitos</TabsTrigger>
+            <TabsTrigger value="relogios"><Clock className="h-4 w-4 mr-1" /> Relógios</TabsTrigger>
             <TabsTrigger value="dashboard"><BarChart3 className="h-4 w-4 mr-1" /> Dashboard</TabsTrigger>
           </TabsList>
 
@@ -426,6 +428,10 @@ export default function Defeitos() {
                 <AdminDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="LOJA" onView={openDetail} />
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="relogios">
+            <RelogiosTab />
           </TabsContent>
 
           <TabsContent value="dashboard">
@@ -495,16 +501,20 @@ export default function Defeitos() {
         </Tabs>
       ) : (
         /* Lojas view */
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "CLIENTE" | "LOJA")}>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList>
             <TabsTrigger value="CLIENTE">Defeito Cliente</TabsTrigger>
             <TabsTrigger value="LOJA">Defeito Loja</TabsTrigger>
+            <TabsTrigger value="RELOGIOS"><Clock className="h-4 w-4 mr-1" /> Relógios</TabsTrigger>
           </TabsList>
           <TabsContent value="CLIENTE">
             <LojasDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="CLIENTE" />
           </TabsContent>
           <TabsContent value="LOJA">
             <LojasDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="LOJA" />
+          </TabsContent>
+          <TabsContent value="RELOGIOS">
+            <RelogiosTab />
           </TabsContent>
         </Tabs>
       )}
