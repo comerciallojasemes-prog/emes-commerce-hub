@@ -386,6 +386,7 @@ export default function Defeitos() {
         <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as any)}>
           <TabsList>
             <TabsTrigger value="defeitos">Defeitos</TabsTrigger>
+            <TabsTrigger value="relogios"><Clock className="h-4 w-4 mr-1" /> Relógios</TabsTrigger>
             <TabsTrigger value="dashboard"><BarChart3 className="h-4 w-4 mr-1" /> Dashboard</TabsTrigger>
           </TabsList>
 
