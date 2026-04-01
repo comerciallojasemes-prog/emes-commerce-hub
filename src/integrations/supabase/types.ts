@@ -211,6 +211,63 @@ export type Database = {
           },
         ]
       }
+      defeitos_relogios: {
+        Row: {
+          created_at: string | null
+          defeito: string
+          entrada_na_loja: string
+          enviado_autorizada: string | null
+          ficha: string
+          finalizado: string | null
+          id: string
+          loja: string
+          marca: string
+          nome_cliente: string
+          operador: string | null
+          referencia: string
+          retornou_loja: string | null
+          status: string | null
+          telefone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          defeito: string
+          entrada_na_loja: string
+          enviado_autorizada?: string | null
+          ficha: string
+          finalizado?: string | null
+          id?: string
+          loja: string
+          marca: string
+          nome_cliente: string
+          operador?: string | null
+          referencia: string
+          retornou_loja?: string | null
+          status?: string | null
+          telefone: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          defeito?: string
+          entrada_na_loja?: string
+          enviado_autorizada?: string | null
+          ficha?: string
+          finalizado?: string | null
+          id?: string
+          loja?: string
+          marca?: string
+          nome_cliente?: string
+          operador?: string | null
+          referencia?: string
+          retornou_loja?: string | null
+          status?: string | null
+          telefone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pendencias: {
         Row: {
           contato: string | null
