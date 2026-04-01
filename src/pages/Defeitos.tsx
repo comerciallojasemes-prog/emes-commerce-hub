@@ -501,16 +501,20 @@ export default function Defeitos() {
         </Tabs>
       ) : (
         /* Lojas view */
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "CLIENTE" | "LOJA")}>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
           <TabsList>
             <TabsTrigger value="CLIENTE">Defeito Cliente</TabsTrigger>
             <TabsTrigger value="LOJA">Defeito Loja</TabsTrigger>
+            <TabsTrigger value="RELOGIOS"><Clock className="h-4 w-4 mr-1" /> Relógios</TabsTrigger>
           </TabsList>
           <TabsContent value="CLIENTE">
             <LojasDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="CLIENTE" />
           </TabsContent>
           <TabsContent value="LOJA">
             <LojasDefeitosTable defeitos={filteredDefeitos} loading={loading} tipo="LOJA" />
+          </TabsContent>
+          <TabsContent value="RELOGIOS">
+            <RelogiosTab />
           </TabsContent>
         </Tabs>
       )}
