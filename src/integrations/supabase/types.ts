@@ -301,6 +301,81 @@ export type Database = {
         }
         Relationships: []
       }
+      escala_mensal: {
+        Row: {
+          ano: number
+          colaborador: string
+          created_at: string | null
+          horario_fixo: string | null
+          horario_quinzenal_1: string | null
+          horario_quinzenal_2: string | null
+          horario_semanal: string | null
+          id: string
+          mes: number
+          tipo_escala: string
+        }
+        Insert: {
+          ano: number
+          colaborador: string
+          created_at?: string | null
+          horario_fixo?: string | null
+          horario_quinzenal_1?: string | null
+          horario_quinzenal_2?: string | null
+          horario_semanal?: string | null
+          id?: string
+          mes: number
+          tipo_escala?: string
+        }
+        Update: {
+          ano?: number
+          colaborador?: string
+          created_at?: string | null
+          horario_fixo?: string | null
+          horario_quinzenal_1?: string | null
+          horario_quinzenal_2?: string | null
+          horario_semanal?: string | null
+          id?: string
+          mes?: number
+          tipo_escala?: string
+        }
+        Relationships: []
+      }
+      escala_sabados: {
+        Row: {
+          ano: number
+          created_at: string | null
+          data: string
+          extra: boolean | null
+          id: string
+          mes: number
+          turno_10_14: string | null
+          turno_14_19: string | null
+          turno_8_12: string | null
+        }
+        Insert: {
+          ano: number
+          created_at?: string | null
+          data: string
+          extra?: boolean | null
+          id?: string
+          mes: number
+          turno_10_14?: string | null
+          turno_14_19?: string | null
+          turno_8_12?: string | null
+        }
+        Update: {
+          ano?: number
+          created_at?: string | null
+          data?: string
+          extra?: boolean | null
+          id?: string
+          mes?: number
+          turno_10_14?: string | null
+          turno_14_19?: string | null
+          turno_8_12?: string | null
+        }
+        Relationships: []
+      }
       pendencias: {
         Row: {
           contato: string | null
