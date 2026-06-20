@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings, Tag, ShieldAlert, Users } from "lucide-react";
+import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings, Tag, ShieldAlert, Users, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +25,7 @@ const allModules = [
   { title: "Promoções", url: "/promocoes", icon: Tag },
   { title: "Gestão de Defeitos", url: "/defeitos", icon: ShieldAlert },
   { title: "Gestão de Equipe", url: "/equipe", icon: Users },
+  { title: "Dashboard de Vendas", url: "/dashboard-vendas", icon: BarChart3 },
 ];
 
 const lojasModules = ["/suprimentos", "/agenda", "/promocoes", "/defeitos"];
