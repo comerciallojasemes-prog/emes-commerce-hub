@@ -16,6 +16,7 @@ import Promocoes from "@/pages/Promocoes";
 import Usuarios from "@/pages/Usuarios";
 import Defeitos from "@/pages/Defeitos";
 import GestaoEquipe from "@/pages/GestaoEquipe";
+import DashboardVendas from "@/pages/DashboardVendas";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,9 @@ function ProtectedRoutes() {
         <Route path="defeitos" element={<Defeitos />} />
         {perfil.perfil !== "Lojas" && (
           <Route path="equipe" element={<GestaoEquipe />} />
+        )}
+        {perfil.perfil !== "Lojas" && (
+          <Route path="dashboard-vendas" element={<DashboardVendas />} />
         )}
         <Route path="*" element={<Navigate to={defaultRoute} replace />} />
       </Route>
