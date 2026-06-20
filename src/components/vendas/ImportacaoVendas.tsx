@@ -120,6 +120,8 @@ export default function ImportacaoVendas() {
   const [ano, setAno] = useState<string>(String(new Date().getFullYear()));
   const [saving, setSaving] = useState(false);
   const [imports, setImports] = useState<Importacao[]>([]);
+  const [preview, setPreview] = useState<ParsedRow[] | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from("vendas_importadas").select("*").order("data_importacao", { ascending: false });
@@ -131,11 +133,36 @@ export default function ImportacaoVendas() {
     if (!XLSX || !XLSX.read || !XLSX.utils) {
       throw new Error("Biblioteca de leitura de planilhas não carregada");
     }
-    const buf = await f.arrayBuffer();
     const allRows: any[][] = [];
 
-    // 1) try as binary xlsx/xls
+    // 1) try as HTML/XML disguised as .xls (common in ERP exports)
     try {
+      const text = await f.text();
+      const looksHtml = /<table[\s>]/i.test(text) || /<html[\s>]/i.test(text);
+      if (looksHtml) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const tables = Array.from(doc.querySelectorAll("table"));
+        if (tables.length > 0) {
+          tables.forEach((tbl) => {
+            const trs = Array.from(tbl.querySelectorAll("tr"));
+            trs.forEach((tr) => {
+              const cells = Array.from(tr.querySelectorAll("th,td")).map((c) =>
+                (c.textContent || "").replace(/\u00a0/g, " ").trim()
+              );
+              if (cells.length > 0) allRows.push(cells);
+            });
+          });
+          if (allRows.length > 0) return allRows;
+        }
+      }
+    } catch (err) {
+      console.warn("Falha ao ler como HTML, tentando como XLSX binário:", err);
+    }
+
+    // 2) fallback: binary xlsx/xls
+    try {
+      const buf = await f.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       wb.SheetNames.forEach((n) => {
         const sheet = wb.Sheets[n];
@@ -144,40 +171,40 @@ export default function ImportacaoVendas() {
       });
       if (allRows.length > 0) return allRows;
     } catch (err) {
-      console.warn("Falha ao ler como XLSX binário, tentando como HTML/XML:", err);
-    }
-
-    // 2) fallback: HTML/XML disguised as .xls
-    try {
-      const text = new TextDecoder("utf-8").decode(buf);
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, "text/html");
-      const tables = Array.from(doc.querySelectorAll("table"));
-      if (tables.length === 0) throw new Error("Nenhuma tabela encontrada no HTML");
-      tables.forEach((tbl) => {
-        const trs = Array.from(tbl.querySelectorAll("tr"));
-        trs.forEach((tr) => {
-          const cells = Array.from(tr.querySelectorAll("th,td")).map((c) =>
-            (c.textContent || "").replace(/\u00a0/g, " ").trim()
-          );
-          if (cells.length > 0) allRows.push(cells);
-        });
-      });
-      if (allRows.length > 0) return allRows;
-    } catch (err) {
-      console.error("Falha ao ler como HTML:", err);
+      console.error("Falha ao ler como XLSX binário:", err);
     }
 
     throw new Error("Formato de arquivo não suportado ou corrompido");
   };
 
-  const handleConfirm = async () => {
-    if (!file || !periodo || !mes || !ano) { toast.error("Preencha todos os campos"); return; }
-    setSaving(true);
+  const handleAnalyze = async () => {
+    if (!file) { toast.error("Selecione um arquivo"); return; }
+    setAnalyzing(true);
     try {
       const allRows = await readFileToRows(file);
       const parsed = parseSheet(allRows);
-      if (parsed.length === 0) { toast.error("Nenhuma linha válida encontrada no arquivo"); setSaving(false); return; }
+      if (parsed.length === 0) {
+        toast.error("Nenhum registro válido encontrado no arquivo");
+        setPreview(null);
+      } else {
+        setPreview(parsed);
+        toast.success(`${parsed.length} registros identificados`);
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Erro ao processar o arquivo. Verifique se é um relatório de vendas válido.");
+      setPreview(null);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!file || !periodo || !mes || !ano) { toast.error("Preencha todos os campos"); return; }
+    if (!preview || preview.length === 0) { toast.error("Analise o arquivo primeiro"); return; }
+    setSaving(true);
+    try {
+      const parsed = preview;
 
       const { data: imp, error: e1 } = await supabase.from("vendas_importadas").insert({
         periodo, mes: parseInt(mes), ano: parseInt(ano), importado_por: perfil?.nome || perfil?.email || "",
@@ -192,7 +219,7 @@ export default function ImportacaoVendas() {
         if (error) throw error;
       }
       toast.success(`Importação concluída: ${parsed.length} linhas`);
-      setOpen(false); setFile(null); setPeriodo(""); setMes("");
+      setOpen(false); setFile(null); setPeriodo(""); setMes(""); setPreview(null);
       load();
     } catch (e: any) {
       console.error(e);
@@ -245,12 +272,17 @@ export default function ImportacaoVendas() {
       </CardContent>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl">
           <DialogHeader><DialogTitle>Importar Relatório de Vendas</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>Arquivo (.xls ou .xlsx)</Label>
-              <Input type="file" accept=".xls,.xlsx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <div className="flex gap-2">
+                <Input type="file" accept=".xls,.xlsx" onChange={(e) => { setFile(e.target.files?.[0] ?? null); setPreview(null); }} />
+                <Button type="button" variant="secondary" onClick={handleAnalyze} disabled={!file || analyzing}>
+                  {analyzing ? "Analisando..." : "Analisar"}
+                </Button>
+              </div>
             </div>
             <div>
               <Label>Período de referência</Label>
@@ -272,10 +304,47 @@ export default function ImportacaoVendas() {
                 </Select>
               </div>
             </div>
+            {preview && preview.length > 0 && (
+              <div className="rounded-md border p-3 space-y-2 bg-muted/30">
+                <div className="text-sm font-medium">
+                  Prévia: {preview.length} registros · {new Set(preview.map(p => p.departamento)).size} departamentos
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Depto</TableHead>
+                        <TableHead>Código</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Loja</TableHead>
+                        <TableHead className="text-right">Qtd</TableHead>
+                        <TableHead className="text-right">Venda</TableHead>
+                        <TableHead className="text-right">Custo</TableHead>
+                        <TableHead className="text-right">Lucro</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {preview.slice(0, 5).map((r, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="text-xs">{r.departamento}</TableCell>
+                          <TableCell className="text-xs">{r.codigo}</TableCell>
+                          <TableCell className="text-xs">{r.tipo}</TableCell>
+                          <TableCell className="text-xs">{r.loja}</TableCell>
+                          <TableCell className="text-xs text-right">{r.quantidade}</TableCell>
+                          <TableCell className="text-xs text-right">{r.preco_venda.toFixed(2)}</TableCell>
+                          <TableCell className="text-xs text-right">{r.preco_custo_real.toFixed(2)}</TableCell>
+                          <TableCell className="text-xs text-right">{r.lucro.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={handleConfirm} disabled={saving}>{saving ? "Importando..." : "Confirmar Importação"}</Button>
+            <Button variant="outline" onClick={() => { setOpen(false); setPreview(null); }}>Cancelar</Button>
+            <Button onClick={handleConfirm} disabled={saving || !preview}>{saving ? "Importando..." : "Confirmar Importação"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
