@@ -127,18 +127,55 @@ export default function ImportacaoVendas() {
   };
   useEffect(() => { load(); }, []);
 
-  const handleConfirm = async () => {
-    if (!file || !periodo || !mes || !ano) { toast.error("Preencha todos os campos"); return; }
-    setSaving(true);
+  const readFileToRows = async (f: File): Promise<any[][]> => {
+    if (!XLSX || !XLSX.read || !XLSX.utils) {
+      throw new Error("Biblioteca de leitura de planilhas não carregada");
+    }
+    const buf = await f.arrayBuffer();
+    const allRows: any[][] = [];
+
+    // 1) try as binary xlsx/xls
     try {
-      const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
-      const allRows: any[][] = [];
       wb.SheetNames.forEach((n) => {
         const sheet = wb.Sheets[n];
         const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1, raw: true, defval: null });
         allRows.push(...rows);
       });
+      if (allRows.length > 0) return allRows;
+    } catch (err) {
+      console.warn("Falha ao ler como XLSX binário, tentando como HTML/XML:", err);
+    }
+
+    // 2) fallback: HTML/XML disguised as .xls
+    try {
+      const text = new TextDecoder("utf-8").decode(buf);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+      const tables = Array.from(doc.querySelectorAll("table"));
+      if (tables.length === 0) throw new Error("Nenhuma tabela encontrada no HTML");
+      tables.forEach((tbl) => {
+        const trs = Array.from(tbl.querySelectorAll("tr"));
+        trs.forEach((tr) => {
+          const cells = Array.from(tr.querySelectorAll("th,td")).map((c) =>
+            (c.textContent || "").replace(/\u00a0/g, " ").trim()
+          );
+          if (cells.length > 0) allRows.push(cells);
+        });
+      });
+      if (allRows.length > 0) return allRows;
+    } catch (err) {
+      console.error("Falha ao ler como HTML:", err);
+    }
+
+    throw new Error("Formato de arquivo não suportado ou corrompido");
+  };
+
+  const handleConfirm = async () => {
+    if (!file || !periodo || !mes || !ano) { toast.error("Preencha todos os campos"); return; }
+    setSaving(true);
+    try {
+      const allRows = await readFileToRows(file);
       const parsed = parseSheet(allRows);
       if (parsed.length === 0) { toast.error("Nenhuma linha válida encontrada no arquivo"); setSaving(false); return; }
 
@@ -158,7 +195,8 @@ export default function ImportacaoVendas() {
       setOpen(false); setFile(null); setPeriodo(""); setMes("");
       load();
     } catch (e: any) {
-      toast.error("Erro ao importar: " + (e.message || e));
+      console.error(e);
+      toast.error("Erro ao processar o arquivo. Verifique se é um .xls ou .xlsx válido e tente novamente.");
     } finally {
       setSaving(false);
     }
