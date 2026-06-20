@@ -651,6 +651,86 @@ export type Database = {
         }
         Relationships: []
       }
+      vendas_departamento: {
+        Row: {
+          codigo: string
+          created_at: string
+          departamento: string
+          id: string
+          importacao_id: string
+          loja: string
+          lucro: number
+          preco_custo_real: number
+          preco_venda: number
+          quantidade: number
+          tipo: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          departamento: string
+          id?: string
+          importacao_id: string
+          loja: string
+          lucro?: number
+          preco_custo_real?: number
+          preco_venda?: number
+          quantidade?: number
+          tipo: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          departamento?: string
+          id?: string
+          importacao_id?: string
+          loja?: string
+          lucro?: number
+          preco_custo_real?: number
+          preco_venda?: number
+          quantidade?: number
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendas_departamento_importacao_id_fkey"
+            columns: ["importacao_id"]
+            isOneToOne: false
+            referencedRelation: "vendas_importadas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendas_importadas: {
+        Row: {
+          ano: number
+          created_at: string
+          data_importacao: string
+          id: string
+          importado_por: string
+          mes: number
+          periodo: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string
+          data_importacao?: string
+          id?: string
+          importado_por: string
+          mes: number
+          periodo: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string
+          data_importacao?: string
+          id?: string
+          importado_por?: string
+          mes?: number
+          periodo?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
