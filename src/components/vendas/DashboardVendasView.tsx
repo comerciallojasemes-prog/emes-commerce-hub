@@ -28,14 +28,15 @@ const fmtBRL = (n: number) => n.toLocaleString("pt-BR", { style: "currency", cur
 const fmtNum = (n: number) => n.toLocaleString("pt-BR");
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
-function aggregate(rows: VendaRow[]) {
+function aggregate(rows: VendaRow[], totalFat = 0) {
   const qtd = rows.reduce((s, r) => s + (r.quantidade || 0), 0);
   const fat = rows.reduce((s, r) => s + (r.preco_venda || 0), 0);
   const cus = rows.reduce((s, r) => s + (r.preco_custo_real || 0), 0);
   const luc = rows.reduce((s, r) => s + (r.lucro || 0), 0);
-  const margem = fat > 0 ? (luc / fat) * 100 : 0;
+  const margem = fat > 0 ? ((fat - cus) / fat) * 100 : 0;
   const ticket = qtd > 0 ? fat / qtd : 0;
-  return { qtd, fat, cus, luc, margem, ticket };
+  const participacao = totalFat > 0 ? (fat / totalFat) * 100 : 0;
+  return { qtd, fat, cus, luc, margem, ticket, participacao };
 }
 
 function groupBy<T>(arr: T[], fn: (x: T) => string) {
@@ -128,15 +129,16 @@ export default function DashboardVendasView() {
   const kpis = useMemo(() => aggregate(filteredRows), [filteredRows]);
 
   const porDepto = useMemo(() => {
+    const totalFat = kpis.fat;
     const m = groupBy(filteredRows, (r) => r.departamento);
-    const arr = Array.from(m.entries()).map(([dep, rs]) => ({ dep, ...aggregate(rs), rows: rs }));
+    const arr = Array.from(m.entries()).map(([dep, rs]) => ({ dep, ...aggregate(rs, totalFat), rows: rs }));
     arr.sort((a, b) => {
       const dir = sort.dir === "asc" ? 1 : -1;
-      const map: any = { dep: a.dep.localeCompare(b.dep), qtd: a.qtd - b.qtd, fat: a.fat - b.fat, cus: a.cus - b.cus, luc: a.luc - b.luc, margem: a.margem - b.margem, ticket: a.ticket - b.ticket };
+      const map: any = { dep: a.dep.localeCompare(b.dep), qtd: a.qtd - b.qtd, fat: a.fat - b.fat, cus: a.cus - b.cus, luc: a.luc - b.luc, margem: a.margem - b.margem, ticket: a.ticket - b.ticket, participacao: a.participacao - b.participacao };
       return (map[sort.col] ?? 0) * dir;
     });
     return arr;
-  }, [filteredRows, sort]);
+  }, [filteredRows, sort, kpis.fat]);
 
   const porLoja = useMemo(() => {
     const m = groupBy(filteredRows, (r) => r.loja);
@@ -148,7 +150,7 @@ export default function DashboardVendasView() {
   const exportExcel = () => {
     const data = porDepto.map((d) => ({
       Departamento: d.dep, Quantidade: d.qtd, Faturamento: d.fat, Custo: d.cus, Lucro: d.luc,
-      "Margem %": d.margem.toFixed(2), "Ticket Médio": d.ticket.toFixed(2),
+      "Margem %": d.margem.toFixed(2), "Participação %": d.participacao.toFixed(2), "Ticket Médio": d.ticket.toFixed(2),
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -161,8 +163,8 @@ export default function DashboardVendasView() {
     doc.text(`Dashboard de Vendas — ${periodoLabel(periodoId)}`, 14, 16);
     autoTable(doc, {
       startY: 22,
-      head: [["Departamento", "Qtd", "Faturamento", "Custo", "Lucro", "Margem %", "Ticket"]],
-      body: porDepto.map((d) => [d.dep, fmtNum(d.qtd), fmtBRL(d.fat), fmtBRL(d.cus), fmtBRL(d.luc), fmtPct(d.margem), fmtBRL(d.ticket)]),
+      head: [["Departamento", "Qtd", "Faturamento", "Custo", "Lucro", "Margem %", "Participação %", "Ticket"]],
+      body: porDepto.map((d) => [d.dep, fmtNum(d.qtd), fmtBRL(d.fat), fmtBRL(d.cus), fmtBRL(d.luc), fmtPct(d.margem), fmtPct(d.participacao), fmtBRL(d.ticket)]),
     });
     doc.save(`vendas_${periodoLabel(periodoId)}.pdf`);
   };
@@ -287,9 +289,9 @@ export default function DashboardVendasView() {
             <Card className="lg:col-span-2"><CardHeader><CardTitle className="text-base">Participação % por Departamento</CardTitle></CardHeader>
               <CardContent className="h-80">
                 <ResponsiveContainer><PieChart>
-                  <Pie data={porDepto.map((d) => ({ name: d.dep, value: d.fat }))} dataKey="value" nameKey="name" outerRadius={110} label>
+                  <Pie data={porDepto.map((d) => ({ name: d.dep, value: d.fat, participacao: d.participacao }))} dataKey="value" nameKey="name" outerRadius={110} label={({ name, participacao }: any) => `${name}: ${participacao.toFixed(1)}%`}>
                     {porDepto.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Legend />
+                  </Pie><Tooltip formatter={(v: any, n: any, props: any) => { const p = props?.payload?.participacao; return [fmtBRL(Number(v)) + (p ? ` (${p.toFixed(1)}%)` : ""), n]; }} /><Legend />
                 </PieChart></ResponsiveContainer>
               </CardContent>
             </Card>
@@ -308,6 +310,7 @@ export default function DashboardVendasView() {
                     <SortHead col="cus">Custo</SortHead>
                     <SortHead col="luc">Lucro</SortHead>
                     <SortHead col="margem">Margem %</SortHead>
+                    <SortHead col="participacao">Participação %</SortHead>
                     <SortHead col="ticket">Ticket Médio</SortHead>
                   </TableRow>
                 </TableHeader>
@@ -325,6 +328,7 @@ export default function DashboardVendasView() {
                           <TableCell>{fmtBRL(d.cus)}</TableCell>
                           <TableCell>{fmtBRL(d.luc)}</TableCell>
                           <TableCell>{fmtPct(d.margem)}</TableCell>
+                          <TableCell>{fmtPct(d.participacao)}</TableCell>
                           <TableCell>{fmtBRL(d.ticket)}</TableCell>
                         </TableRow>
                         {isOpen && tipos.map((t) => (
@@ -336,6 +340,7 @@ export default function DashboardVendasView() {
                             <TableCell>{fmtBRL(t.cus)}</TableCell>
                             <TableCell>{fmtBRL(t.luc)}</TableCell>
                             <TableCell>{fmtPct(t.margem)}</TableCell>
+                            <TableCell></TableCell>
                             <TableCell>{fmtBRL(t.ticket)}</TableCell>
                           </TableRow>
                         ))}
