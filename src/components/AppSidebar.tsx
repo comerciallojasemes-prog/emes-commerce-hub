@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Bell, Gift, Package, ClipboardList, Settings, Tag, ShieldAlert, Users, BarChart3 } from "lucide-react";
+import { AlertTriangle, Package, ClipboardList, Settings, ShieldAlert, Users, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,19 +16,15 @@ import {
 } from "@/components/ui/sidebar";
 
 const allModules = [
-  { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Pendências", url: "/pendencias", icon: AlertTriangle },
-  { title: "Alertas", url: "/alertas", icon: Bell },
-  { title: "Bonificações", url: "/bonificacoes", icon: Gift },
   { title: "Suprimentos", url: "/suprimentos", icon: Package },
   { title: "Solicitações", url: "/solicitacoes", icon: ClipboardList },
-  { title: "Promoções", url: "/promocoes", icon: Tag },
   { title: "Gestão de Defeitos", url: "/defeitos", icon: ShieldAlert },
-  { title: "Gestão de Equipe", url: "/equipe", icon: Users },
   { title: "Dashboard de Vendas", url: "/dashboard-vendas", icon: BarChart3 },
+  { title: "Gestão de Equipe", url: "/equipe", icon: Users },
 ];
 
-const lojasModules = ["/suprimentos", "/agenda", "/promocoes", "/defeitos"];
+const lojasModules = ["/suprimentos", "/defeitos"];
 
 export function AppSidebar() {
   const { state } = useSidebar();

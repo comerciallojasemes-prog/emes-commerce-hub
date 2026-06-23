@@ -6,13 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Login from "@/pages/Login";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import Agenda from "@/pages/Agenda";
 import Pendencias from "@/pages/Pendencias";
-import Alertas from "@/pages/Alertas";
-import Bonificacoes from "@/pages/Bonificacoes";
 import Suprimentos from "@/pages/Suprimentos";
 import Solicitacoes from "@/pages/Solicitacoes";
-import Promocoes from "@/pages/Promocoes";
 import Usuarios from "@/pages/Usuarios";
 import Defeitos from "@/pages/Defeitos";
 import GestaoEquipe from "@/pages/GestaoEquipe";
@@ -52,18 +48,15 @@ function ProtectedRoutes() {
     );
   }
 
-  const defaultRoute = perfil.perfil === "Lojas" ? "/agenda" : "/agenda";
+  const defaultRoute = perfil.perfil === "Lojas" ? "/suprimentos" : "/pendencias";
 
   return (
     <Routes>
       <Route element={<DashboardLayout />}>
         <Route index element={<Navigate to={defaultRoute} replace />} />
-        <Route path="agenda" element={<Agenda />} />
         {perfil.perfil !== "Lojas" && (
           <>
             <Route path="pendencias" element={<Pendencias />} />
-            <Route path="alertas" element={<Alertas />} />
-            <Route path="bonificacoes" element={<Bonificacoes />} />
             <Route path="solicitacoes" element={<Solicitacoes />} />
           </>
         )}
@@ -71,7 +64,6 @@ function ProtectedRoutes() {
           <Route path="usuarios" element={<Usuarios />} />
         )}
         <Route path="suprimentos" element={<Suprimentos />} />
-        <Route path="promocoes" element={<Promocoes />} />
         <Route path="defeitos" element={<Defeitos />} />
         {perfil.perfil !== "Lojas" && (
           <Route path="equipe" element={<GestaoEquipe />} />
